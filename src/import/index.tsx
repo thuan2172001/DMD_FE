@@ -1,19 +1,19 @@
-import { Button, Card, Form, Header, Input, Message, Table, TableHeaderCell } from "semantic-ui-react";
+import { Button, Card, Form, Header, Input, Message, Progress, Table, TableHeaderCell } from "semantic-ui-react";
 import { useTranslation } from "react-i18next";
-import api from "services/api";
 import { useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import ui from "services/ui";
 import { utils } from "services";
 import { Empty } from "components";
+import ImagePopup from "components/image";
+
 export default function ImportData() {
   const { t } = useTranslation();
-  const nav = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [data, setData] = useState<any>({});
   const [tableHeaderData, setTableHeader] = useState([])
   const [tableCellData, setTableCell] = useState([])
+  const [percentage, setPercentage] = useState(100);
 
   const excel = useRef<any>();
   const pdf = useRef<any>();
@@ -34,33 +34,50 @@ export default function ImportData() {
         const selectedFilePdf = pdfFileInput.files[0];
 
         let excelData = await utils.handleFileExcel(selectedFileExcel);
-        let pdfData = await utils.cropPdfCenterToImages(selectedFilePdf);
+        let pdfData = await utils.cropPdfCenterToImages(setPercentage, selectedFilePdf);
         console.log({ excelData, pdfData })
+
+        console.log(pdfData[0])
 
         let pdfFormat: any = {};
 
         pdfData.map((pdfDataText) => {
           let arr = pdfDataText.text.split('\n');
-          let key = arr[arr.length - 3].replaceAll(' ', '');
+          let key = (pdfDataText.pageKey ?? arr[arr.length - 3]).replaceAll(' ', '');
           let metadata = pdfDataText;
           pdfFormat[key] = metadata;
         })
 
         let tableHeader = Object.keys(excelData[0]);
-        tableHeader.push(...["Page", "PDF"]);
+        tableHeader.push(...["Page", "PDF", "Status"]);
 
         let tableCell = excelData.map((rowData) => {
           let tracking = rowData['Tracking'];
+          let name = rowData['Tên*'];
+          let address = rowData['Địa chỉ*'];
+          let city = rowData['Thành phố*'];
+          let state = rowData['Bang*'];
+
           let pdfData: {
             page: number;
             src: string;
             text: string;
           } = pdfFormat[tracking]
 
+          let checkExist = !!pdfData?.src;
+
+          let textLower = pdfData?.text?.toLowerCase() ?? ""
+          let checkName = textLower.includes(name?.toLowerCase()) || textLower.includes(name?.replaceAll(' ', '')?.toLowerCase())
+          let checkAddress = textLower.includes(address?.toLowerCase()) || textLower.includes(address?.replaceAll(' ', '')?.toLowerCase())
+          let checkCity = textLower.includes(city?.toLowerCase()) || textLower.includes(city?.replaceAll(' ', '')?.toLowerCase())
+          let checkState = textLower.includes(state?.toLowerCase()) || textLower.includes(state?.replaceAll(' ', '')?.toLowerCase())
+
           return {
             ...rowData,
-            PDF: pdfData.src,
-            Page: pdfData.page
+            PDF: pdfData?.src,
+            Page: pdfData?.page,
+            Status: checkExist && checkName && checkAddress && checkCity && checkState,
+            text: pdfData?.text
           }
         })
 
@@ -76,13 +93,7 @@ export default function ImportData() {
 
   async function onSubmit() {
     let requiredFields = [
-      "user_name",
-      "password",
-      "confirm_password",
-      "phone",
-      "email",
-      "skype",
-      "name",
+      "title",
     ];
     for (var i = 0; i < requiredFields.length; i++) {
       let f = requiredFields[i];
@@ -92,11 +103,6 @@ export default function ImportData() {
       }
     }
     try {
-      let rs = await api.post(`/user/register-user`, { ...data, role: 2 });
-      setLoading(true);
-      ui.alert(t("Register success"));
-      localStorage.setItem("token", rs.token);
-      nav("/");
     } catch (error: any) {
       ui.alert(t(error.message));
     } finally {
@@ -104,78 +110,84 @@ export default function ImportData() {
     }
   }
   return (
-    <div className="w-screen h-screen flex items-center justify-center">
-      <div className="w-full h-full">
-        <div className="w-full rounded-md">
-          <Card fluid>
-            <Card.Content
-              header={
-                <Header className="pb-4 text-2xl text-center" color="blue">
-                  {t("Import data")}
-                </Header>
-              }
-            />
-            <Card.Content
-              description={
-                <Form onSubmit={onSubmit}>
-                  {error !== "" && (
-                    <Message
-                      header={t("Error")}
-                      color="red"
-                      content={error}
-                      icon="compose"
+    <div className="w-full h-full flex items-center justify-center">
+      <div className="w-full justify-center mx-auto self-center">
+        <Card fluid>
+          <div className="text-2xl text-center font-bold py-4">
+            {t("Import data")}
+          </div>
+
+          <Card.Content
+            description={
+              <Form onSubmit={onSubmit}>
+                {error !== "" && (
+                  <Message
+                    header={t("Error")}
+                    color="red"
+                    content={error}
+                    icon="compose"
+                  />
+                )}
+                <div className="flex gap-8">
+                  <div className="mt-2">
+                    <div>
+                      Title
+                    </div>
+                    <Input
+                      className="mt-2 w-80"
+                      fluid
+                      placeholder={t("Title")}
+                      onChange={(evt, { value }) => {
+                        handleChange("title", value);
+                      }}
                     />
-                  )}
-                  <Input
-                    className="mt-2 w-80"
-                    fluid
-                    placeholder={t("Title")}
-                    onChange={(evt, { value }) => {
-                      handleChange("title", value);
-                    }}
-                  />
-                  <Input
-                    className="mt-2 w-80"
-                    fluid
-                    icon="lock"
-                    type="text"
-                    placeholder={t("Description")}
-                    onChange={(evt, { value }) => {
-                      handleChange("desc", value);
-                    }}
-                  />
-                  <div>
+                  </div>
+
+                  <div className="mt-2">
+                    <div>
+                      Select metadata file (xlsx, csv)
+                    </div>
                     <Input
                       className="mt-2"
                       type="file"
                       ref={excel}
-                      label="Select your data file (xlsx, csv)"
                     />
                   </div>
-                  <div>
+
+                  <div className="mt-2">
+                    <div>
+                      Select barcode file (pdf only)
+                    </div>
                     <Input
                       className="mt-2"
                       type="file"
                       ref={pdf}
-                      label="Select your data file (pdf)"
                     />
                   </div>
-                  <div className="mt-2 w-80">
-                    <Button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        check();
-                      }}
-                      fluid
-                      color="green"
-                      loading={loading}
-                    >Check data</Button>
-                  </div>
-                </Form>
-              }
-            />
-          </Card>
-        </div>
+                </div>
+
+
+                <div className="mt-2 w-80">
+                  {loading && percentage != 100 ? <div>
+                    <Progress value={percentage.toFixed(1)} total={100} progress='percent' color='teal' />
+                  </div> : <Button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setTableCell([])
+                      check();
+                    }}
+                    fluid
+                    color="green"
+                    loading={loading}
+                  >
+                    Check data
+                  </Button>
+                  }
+                </div>
+              </Form>
+            }
+          />
+        </Card>
 
         <Card.Content>
           <div
@@ -205,12 +217,32 @@ export default function ImportData() {
                 </Table.Row>
               </Table.Header>
               <Table.Body>
-                {tableCellData.map((col, colIndex) => {
+                {tableCellData.map((col) => {
                   return (
                     <Table.Row>
-                      {tableHeaderData.map((header) => {
+                      {tableHeaderData.map((header, idx) => {
+                        if (header === "PDF") {
+                          return (
+                            <Table.Cell key={header + idx}>
+                              {col[header] ?
+                                <ImagePopup imageUrl={col[header]} /> : <></>}
+                            </Table.Cell>
+                          )
+                        }
+                        if (header === 'Status') {
+                          return (
+                            <Table.Cell key={header + idx}>
+                              {col[header] ?
+                                <div className="font-bold text-[#21BA45]">Valid data</div>
+                                : <div className="font-bold text-[#FF0000] cursor-pointer" onClick={() => {
+                                  console.log(col.text)
+                                }}>Invalid data</div>
+                              }
+                            </Table.Cell>
+                          )
+                        }
                         return (
-                          <Table.Cell key={header} >
+                          <Table.Cell key={header + idx} >
                             {col[header]}
                           </Table.Cell>
                         )
@@ -220,7 +252,9 @@ export default function ImportData() {
                 })}
               </Table.Body>
             </Table>
-            {!loading && tableCellData.length === 0 ? <Empty /> : null}
+            <div>
+              {!loading && tableCellData.length === 0 ? <Empty /> : null}
+            </div>
           </div>
         </Card.Content>
       </div>

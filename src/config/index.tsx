@@ -9,6 +9,5 @@ const Config = {
   DayOfWeek: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
   TimeSheetDuration: 7, //days
   CancelTime: 2, //hour
-  EncruptedKey: process.env.REACT_APP_REQUEST_ENCRYPT_KEY,
 };
 export default Config;

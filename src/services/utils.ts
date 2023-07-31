@@ -1,7 +1,8 @@
 import { read, utils as xlsxUtils } from "xlsx";
 import Tesseract from "tesseract.js";
 import { getDocument, GlobalWorkerOptions } from "pdfjs-dist";
-GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.worker.js';
+GlobalWorkerOptions.workerSrc =
+  "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.worker.js";
 
 let uid = 0;
 function matchText(search: string, text: string) {
@@ -87,25 +88,27 @@ const getStringifyValue = (value: any) => {
   }
 };
 
-async function cropPdfCenterToImages(file: any): Promise<{page: number, src: string, text: string}[]> {
+async function cropPdfCenterToImages(
+  setPercentage: any,
+  file: any
+): Promise<{ page: number; src: string; text: string; pageKey: string }[]> {
   return new Promise((resolve, reject) => {
     const fileReader = new FileReader();
     fileReader.onload = async function () {
       const data = new Uint8Array(this.result as ArrayBufferLike);
       // @ts-ignore
-      let dataRes = await window.cropPdfCenterToImages(data)
-      resolve(dataRes)
+      let dataRes = await window.cropPdfCenterToImages(setPercentage, data);
+      resolve(dataRes);
     };
 
     fileReader.onerror = (error) => {
-      console.error('Error reading file: ', error);
+      console.error("Error reading file: ", error);
       reject(error); // Reject with an error if FileReader encounters an error
     };
 
     fileReader.readAsArrayBuffer(file);
   });
 }
-
 
 function convertImageToText(imageBase64: string) {
   Tesseract.recognize(
@@ -126,14 +129,14 @@ function convertImageToText(imageBase64: string) {
 const handleFileExcel = (file: any): Promise<any[]> => {
   return new Promise((resolve, reject) => {
     if (!file) {
-      reject(new Error('File not provided.'));
+      reject(new Error("File not provided."));
     }
 
     const reader = new FileReader();
 
     reader.onload = (e: any) => {
       const data = new Uint8Array(e.target.result);
-      const workbook = read(data, { type: 'array' });
+      const workbook = read(data, { type: "array" });
 
       // Assuming you have only one sheet, read its data
       const firstSheetName = workbook.SheetNames[0];
@@ -152,7 +155,6 @@ const handleFileExcel = (file: any): Promise<any[]> => {
     reader.readAsArrayBuffer(file);
   });
 };
-
 
 const utils = {
   matchText,
