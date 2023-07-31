@@ -1,10 +1,10 @@
-import { Button, Card, Form, Header, Input, Message, Progress, Table, TableHeaderCell } from "semantic-ui-react";
-import { useTranslation } from "react-i18next";
-import { useRef, useState } from "react";
-import ui from "services/ui";
-import { utils } from "services";
 import { Empty } from "components";
 import ImagePopup from "components/image";
+import { useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { Button, Card, Form, Input, Message, Progress, Table } from "semantic-ui-react";
+import { utils } from "services";
+import ui from "services/ui";
 
 export default function ImportData() {
   const { t } = useTranslation();
@@ -70,7 +70,7 @@ export default function ImportData() {
 
           let textLower = pdfData?.text?.toLowerCase() ?? ""
           let textLowerStrim = textLower.replaceAll(' ', '')
-          
+
           let checkName = textLower.includes(name?.toLowerCase()) || textLower.includes(name?.replaceAll(' ', '')?.toLowerCase())
           let checkAddress = textLower.includes(address?.toLowerCase()) ||
             textLower.includes(address?.replaceAll(' ', '')?.toLowerCase()) ||
@@ -78,14 +78,22 @@ export default function ImportData() {
 
           let checkCity = textLower.includes(city?.toLowerCase()) || textLower.includes(city?.replaceAll(' ', '')?.toLowerCase())
           let checkState = textLower.includes(state?.toLowerCase()) || textLower.includes(state?.replaceAll(' ', '')?.toLowerCase())
-          console.log({ checkExist, checkName, checkAddress, checkCity, checkState })
+
+          let errorValue = [];
+
+          !checkExist && errorValue.push('PDF');
+          !checkName && errorValue.push(...['Tên*', 'Name']);
+          !checkAddress && errorValue.push(...['Địa chỉ*', 'Address'])
+          !checkCity && errorValue.push(...['Thành phố*', 'City'])
+          !checkState && errorValue.push(...['Bang*', 'State'])
 
           return {
             ...rowData,
             PDF: pdfData?.src,
             Page: pdfData?.page,
             Status: checkExist && checkName && checkAddress && checkCity && checkState,
-            text: pdfData?.text
+            text: pdfData?.text,
+            errorValue
           }
         })
 
@@ -248,6 +256,9 @@ export default function ImportData() {
               </Table.Header>
               <Table.Body>
                 {tableCellData.map((col) => {
+                  let errorValue = col.errorValue;
+                  errorValue.length && console.log({errorValue})
+
                   return (
                     <Table.Row>
                       {tableHeaderData.map((header, idx) => {
@@ -272,7 +283,7 @@ export default function ImportData() {
                           )
                         }
                         return (
-                          <Table.Cell key={header + idx} >
+                          <Table.Cell key={header + idx} className={`${errorValue?.includes(header) && "alert-field"}`}>
                             {col[header]}
                           </Table.Cell>
                         )

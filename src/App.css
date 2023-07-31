@@ -72,3 +72,8 @@ pre {
 .img {
   max-width: 300% !important;
 }
+
+.alert-field {
+  background-color: rgb(212, 30, 30) !important;
+  color: white;
+}
