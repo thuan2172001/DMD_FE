@@ -53,10 +53,12 @@ export default function ImportData() {
 
         let tableCell = excelData.map((rowData) => {
           let tracking = rowData['Tracking'];
-          let name = rowData['Tên*'];
-          let address = rowData['Địa chỉ*'];
-          let city = rowData['Thành phố*'];
-          let state = rowData['Bang*'];
+          let name = rowData['Tên*'] ?? rowData["Name"];
+          let address = rowData['Địa chỉ*'] ?? rowData["Address"];
+          let city = rowData['Thành phố*'] ?? rowData["City"];
+          let state = rowData['Bang*'] ?? rowData["State"];
+
+          console.log({ name, address, city, state })
 
           let pdfData: {
             page: number;
@@ -67,10 +69,16 @@ export default function ImportData() {
           let checkExist = !!pdfData?.src;
 
           let textLower = pdfData?.text?.toLowerCase() ?? ""
+          let textLowerStrim = textLower.replaceAll(' ', '')
+          
           let checkName = textLower.includes(name?.toLowerCase()) || textLower.includes(name?.replaceAll(' ', '')?.toLowerCase())
-          let checkAddress = textLower.includes(address?.toLowerCase()) || textLower.includes(address?.replaceAll(' ', '')?.toLowerCase())
+          let checkAddress = textLower.includes(address?.toLowerCase()) ||
+            textLower.includes(address?.replaceAll(' ', '')?.toLowerCase()) ||
+            textLowerStrim.includes(address?.replaceAll(' ', '')?.toLowerCase())
+
           let checkCity = textLower.includes(city?.toLowerCase()) || textLower.includes(city?.replaceAll(' ', '')?.toLowerCase())
           let checkState = textLower.includes(state?.toLowerCase()) || textLower.includes(state?.replaceAll(' ', '')?.toLowerCase())
+          console.log({ checkExist, checkName, checkAddress, checkCity, checkState })
 
           return {
             ...rowData,
@@ -103,6 +111,13 @@ export default function ImportData() {
       }
     }
     try {
+      let payload: any = {
+        title: data['title'],
+        data: tableCellData
+      }
+
+      // TODO: HANDLE API
+      console.log("API SENT WITH PAYLOAD", payload)
     } catch (error: any) {
       ui.alert(t(error.message));
     } finally {
@@ -170,18 +185,33 @@ export default function ImportData() {
                 <div className="mt-2 w-80">
                   {loading && percentage != 100 ? <div>
                     <Progress value={percentage.toFixed(1)} total={100} progress='percent' color='teal' />
-                  </div> : <Button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setTableCell([])
-                      check();
-                    }}
-                    fluid
-                    color="green"
-                    loading={loading}
-                  >
-                    Check data
-                  </Button>
+                  </div> : <div className="flex gap-4">
+                    <Button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setTableCell([])
+                        check();
+                      }}
+                      fluid
+                      color="blue"
+                      loading={loading}
+                    >
+                      Get data
+                    </Button>
+                    {tableCellData?.length ?
+                      <Button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          onSubmit();
+                        }}
+                        fluid
+                        color="green"
+                        loading={loading}
+                      >
+                        Save data
+                      </Button> : <></>
+                    }
+                  </div>
                   }
                 </div>
               </Form>
