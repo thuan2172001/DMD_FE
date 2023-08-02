@@ -3,7 +3,7 @@ import ImagePopup from "components/image";
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button, Card, Form, Input, Message, Progress, Table } from "semantic-ui-react";
-import { utils } from "services";
+import { api, utils } from "services";
 import ui from "services/ui";
 
 export default function ImportData() {
@@ -121,9 +121,23 @@ export default function ImportData() {
     try {
       let payload: any = {
         title: data['title'],
-        data: tableCellData
+        data: tableCellData.map(dt => {
+          return {
+            tracking_id: dt['Tracking'],
+            customer_name: dt['Tên*'],
+            address: dt['Địa chỉ*'],
+            state: dt['Bang*'],
+            zip: dt['ZIP*'],
+            country: dt['Nước*'],
+            pdf: dt['PDF'],
+            page: dt['Page'],
+            status: dt['Status'],
+            text_note: dt['text'],
+          }
+        })
       }
-
+      await api.insertOrder(payload);
+      ui.alert(t("Insert Success"));
       // TODO: HANDLE API
       console.log("API SENT WITH PAYLOAD", payload)
     } catch (error: any) {
