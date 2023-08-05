@@ -20,8 +20,11 @@ export default function UploadImage({
   async function uploadAvatar(image: any) {
     try {
       setLoading(true);
-      let rs = await api.postFormData(`/file/upload-image`, { image });
-      onChange(rs.url);
+      let reader = new FileReader();
+      reader.readAsDataURL(image);
+      reader.onload = function () {
+        onChange(reader.result);
+      };
     } catch (error) {
       setLoading(false);
     }

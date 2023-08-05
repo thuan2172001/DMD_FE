@@ -14,6 +14,7 @@ export default function ImportData() {
   const [tableHeaderData, setTableHeader] = useState([])
   const [tableCellData, setTableCell] = useState([])
   const [percentage, setPercentage] = useState(100);
+  const [requireCf, setRequireCf] = useState(false);
 
   const excel = useRef<any>();
   const pdf = useRef<any>();
@@ -87,6 +88,10 @@ export default function ImportData() {
           !checkCity && errorValue.push(...['Thành phố*', 'City'])
           !checkState && errorValue.push(...['Bang*', 'State'])
 
+          if (errorValue.length && !setRequireCf) {
+            setRequireCf(true);
+          }
+
           return {
             ...rowData,
             PDF: pdfData?.src,
@@ -119,6 +124,7 @@ export default function ImportData() {
       }
     }
     try {
+      await ui.confirm("There are some unmatch data. Are you sure want to save it ?")
       let payload: any = {
         title: data['title'],
         data: tableCellData.map(dt => {
@@ -138,8 +144,6 @@ export default function ImportData() {
       }
       await api.insertOrder(payload);
       ui.alert(t("Insert Success"));
-      // TODO: HANDLE API
-      console.log("API SENT WITH PAYLOAD", payload)
     } catch (error: any) {
       ui.alert(t(error.message));
     } finally {
