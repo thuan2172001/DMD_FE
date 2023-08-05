@@ -6,6 +6,7 @@ import Layout from "layout";
 import Login from "login";
 import ModalManager from "modal";
 import Register from "register";
+import Tracking from "tracking";
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
         <Routes>
           <Route path="/login" element={<Login />}></Route>
           <Route path="/register" element={<Register />}></Route>
+          <Route path="/tracking/:id" element={<Tracking />}></Route>
           <Route path="/*" element={<Layout />}></Route>
         </Routes>
       </Router>
