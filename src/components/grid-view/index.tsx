@@ -34,7 +34,6 @@ import {
 import FilterForm from "./filter-form";
 import { Link } from "react-router-dom";
 import Tree from "components/tree";
-
 interface GridProps {
   gridName: string;
   canSelect?: boolean;
@@ -261,6 +260,15 @@ function GridView({
       : [];
 
     if (rowButtons?.length > 0 && !disableButton) {
+      if (gridName === 'order') {
+        rowButtons.push({
+          "icon": "sync",
+          "color": "blue",
+          "label": "Generate barcode",
+          "action": "generate",
+          "position": "row",
+        })
+      }
       cols.push({
         label: "Actions",
         field: "",
@@ -436,6 +444,30 @@ function GridView({
             content={t(btn.label)}
           />
         );
+      case "generate":
+        return (
+          <Button
+            //@ts-ignore
+            color={btn.color || "blue"}
+            className="mr-1"
+            icon={btn.icon}
+            content={t(btn.label)}
+            size={btn.position === "top" ? "medium" : "mini"}
+            key={index}
+            primary
+            onClick={async () => {
+              const HOST = window.location.origin
+              // let base64 = await utils.generateBarcodeToBase64(`${HOST}/#/tracking/${item.tracking_id}`)
+              let base64 = await utils.generateQRCodeToBase64(`${HOST}/#/tracking/${item.tracking_id}`)
+              const a: any = document.createElement('a');
+              a.href = base64;
+              a.download = `${item.tracking_id}`;
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+            }}
+          />
+        );
     }
   }
   function isSelect(item: any): boolean {
@@ -467,7 +499,6 @@ function GridView({
     document.body.appendChild(link); // Required for FF
     link.click(); // This will download the data file named "my_data.csv".
   }
-
 
   return (
     <div>

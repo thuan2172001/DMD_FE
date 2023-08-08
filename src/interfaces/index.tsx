@@ -152,7 +152,7 @@ export interface Button {
   icon?: string;
   color?: string;
   showInColumn?: string;
-  action: "api" | "redirect" | "connect";
+  action: "api" | "redirect" | "connect" | "download" | "generate";
   api?: string;
   redirectUrl?: string;
   redirectUrlEmbed?: any;
@@ -324,12 +324,12 @@ export interface RewardEntity {
   is_high_fee?: boolean;
   wish?: string;
   sub_plot_type?:
-    | TrapType
-    | BombardType
-    | CampType
-    | TowerType
-    | BarrackType
-    | -1;
+  | TrapType
+  | BombardType
+  | CampType
+  | TowerType
+  | BarrackType
+  | -1;
   emoji_id?: string;
   is_premium?: boolean;
   rune_code?: string;
@@ -346,12 +346,12 @@ export interface BidEntity {
   decoration_code?: string;
   reward_pool_id?: number;
   sub_plot_type?:
-    | TrapType
-    | BombardType
-    | CampType
-    | TowerType
-    | BarrackType
-    | -1;
+  | TrapType
+  | BombardType
+  | CampType
+  | TowerType
+  | BarrackType
+  | -1;
   emoji_id?: string;
   is_premium?: boolean;
   rune_code?: string;
@@ -789,4 +789,11 @@ export enum MongenStatType {
   Sturdiness,
   Magic,
   Aggresion,
+}
+
+
+export enum BarCodeType {
+  CODE128 = "CODE128",
+  EAN13 = "EAN13",
+  CODE39 = "CODE39"
 }

@@ -1,3 +1,4 @@
+import QRCode from "qrcode";
 import { read, utils as xlsxUtils } from "xlsx";
 import Tesseract from "tesseract.js";
 import { getDocument, GlobalWorkerOptions } from "pdfjs-dist";
@@ -156,6 +157,46 @@ const handleFileExcel = (file: any): Promise<any[]> => {
   });
 };
 
+import JsBarcode from "jsbarcode";
+
+function generateBarcodeToBase64(text: string, barcodeType = "CODE128") {
+  return new Promise((resolve, reject) => {
+    try {
+      const canvas = document.createElement("canvas");
+      JsBarcode(canvas, text, {
+        format: barcodeType,
+        displayValue: true,
+      });
+
+      // Convert canvas to Base64 encoded image
+      const base64Image = canvas.toDataURL();
+
+      resolve(base64Image);
+    } catch (error) {
+      reject(error);
+    }
+  });
+}
+
+function generateQRCodeToBase64(text: string) {
+  return new Promise((resolve, reject) => {
+    try {
+      const canvas = document.createElement("canvas");
+      QRCode.toCanvas(canvas, text, (error: any) => {
+        if (error) {
+          reject(error);
+        } else {
+          // Convert canvas to Base64 encoded image
+          const base64Image = canvas.toDataURL();
+          resolve(base64Image);
+        }
+      });
+    } catch (error) {
+      reject(error);
+    }
+  });
+}
+
 const utils = {
   matchText,
   getUid,
@@ -164,5 +205,7 @@ const utils = {
   getStringifyValue,
   cropPdfCenterToImages,
   handleFileExcel,
+  generateBarcodeToBase64,
+  generateQRCodeToBase64,
 };
 export default utils;

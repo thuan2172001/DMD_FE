@@ -13,10 +13,6 @@ export default function Home() {
         <Button color="green" size="large" onClick={() => {
           nav('/import-data')
         }}>IMPORT DATA</Button>
-
-        <Button color="green" size="large" onClick={() => {
-          nav('/view-data')
-        }}>READ DATA</Button>
       </div>
     </div>
   );
