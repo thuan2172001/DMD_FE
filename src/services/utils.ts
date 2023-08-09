@@ -2,6 +2,8 @@ import QRCode from "qrcode";
 import { read, utils as xlsxUtils } from "xlsx";
 import Tesseract from "tesseract.js";
 import { getDocument, GlobalWorkerOptions } from "pdfjs-dist";
+import JsBarcode from "jsbarcode";
+
 GlobalWorkerOptions.workerSrc =
   "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.worker.js";
 
@@ -157,7 +159,6 @@ const handleFileExcel = (file: any): Promise<any[]> => {
   });
 };
 
-import JsBarcode from "jsbarcode";
 
 function generateBarcodeToBase64(text: string, barcodeType = "CODE128") {
   return new Promise((resolve, reject) => {
