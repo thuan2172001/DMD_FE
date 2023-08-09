@@ -669,7 +669,11 @@ function GridView({
               </Table.Header>
               <Table.Body>
                 {data.map((dt, dtIndex) => {
-                  const errors = getErrorValue(dt, dt.text_note)
+                  let errors: any[] = []
+
+                  if (['invalid-order'].includes(gridName)) {
+                    errors = getErrorValue(dt, dt.text_note)
+                  }
 
                   return (
                     <Table.Row
