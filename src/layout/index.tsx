@@ -39,7 +39,7 @@ export default function Layout() {
           forms[item.name] = item;
         });
 
-        data.setMeta(grids, forms, enums, rs.menuInfos, rs.troopList, rs.skillList);
+        data.setMeta(grids, forms, enums, rs.menuInfos);
         dispatch(setUserInfo(userInfo));
       } catch (error) {
         localStorage.clear();

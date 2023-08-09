@@ -31,7 +31,7 @@ function FormView({
   const [loading, setLoading] = useState<boolean>(true);
 
   let { mode, id } = params;
-  const button: IButton = formInfo.buttons.find(
+  const button: IButton = formInfo?.buttons?.find(
     (i) => i.pageMode === params.mode
   );
   const [successMessage, setSuccessMessage] = useState<string>(

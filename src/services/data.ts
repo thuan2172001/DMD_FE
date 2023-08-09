@@ -3,8 +3,6 @@ let grids: { [key: string]: GridEntity } = {};
 let forms: { [key: string]: FormEntity } = {};
 let enums: { [key: string]: EnumEntity } = {};
 let menus: MenuEntity[] = [];
-let troops: any[];
-let skills: any[];
 let isSetMeta: boolean = false;
 
 function setMeta(
@@ -12,16 +10,12 @@ function setMeta(
   _forms: { [key: string]: FormEntity },
   _enums: { [key: string]: EnumEntity },
   _menus: MenuEntity[],
-  _troops: any[],
-  _skills: any[]
 ): void {
   isSetMeta = true;
   grids = _grids;
   forms = _forms;
   enums = _enums;
   menus = _menus;
-  troops = _troops ?? [];
-  skills = _skills ?? [];
 }
 function getMenus() {
   return menus;
@@ -43,12 +37,7 @@ function getFormByName(name: string): FormEntity {
 function checkIsSetMeta(): boolean {
   return isSetMeta;
 }
-function getAllTroop(): any[] {
-  return troops;
-}
-function getAllSkill(): any[] {
-  return skills;
-}
+
 const dataServices = {
   getMenus,
   getGrid,
@@ -57,7 +46,5 @@ const dataServices = {
   checkIsSetMeta,
   setMeta,
   getAllEnums,
-  getAllTroop,
-  getAllSkill,
 };
 export default dataServices;

@@ -61,6 +61,7 @@ export interface GridEntity {
   host?: string;
   tokens?: any;
   inputs?: Input[];
+  where?: any;
 }
 export interface UserEntity {
   id: number;

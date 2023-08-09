@@ -34,6 +34,7 @@ import {
 import FilterForm from "./filter-form";
 import { Link } from "react-router-dom";
 import Tree from "components/tree";
+import { getErrorValue, isInvalid } from "import";
 interface GridProps {
   gridName: string;
   canSelect?: boolean;
@@ -260,15 +261,15 @@ function GridView({
       : [];
 
     if (rowButtons?.length > 0 && !disableButton) {
-      if (gridName === 'order') {
-        rowButtons.push({
-          "icon": "sync",
-          "color": "blue",
-          "label": "Generate QR Code",
-          "action": "generate",
-          "position": "row",
-        })
-      }
+      // if (gridName === 'order') {
+      //   rowButtons.push({
+      //     "icon": "sync",
+      //     "color": "blue",
+      //     "label": "Generate QR Code",
+      //     "action": "generate",
+      //     "position": "row",
+      //   })
+      // }
       cols.push({
         label: "Actions",
         field: "",
@@ -287,6 +288,7 @@ function GridView({
   }, [gridInfo]);
   useEffect(() => {
     let rs = dataService.getGrid(gridName);
+    console.log({ rs, gridName })
     if (!rs) {
       return console.error("Grid not found: ", gridName);
     }
@@ -321,6 +323,9 @@ function GridView({
       setLoading(false);
     }
     let where: any = {};
+    if (gridInfo?.where) {
+      where = gridInfo.where
+    }
     if (gridInfo?.filter && gridInfo?.filter?.length > 0) {
       gridInfo.filter.forEach((item) => {
         if (!query[item.field]) return;
@@ -663,44 +668,47 @@ function GridView({
                 </Table.Row>
               </Table.Header>
               <Table.Body>
-                {data.map((dt, dtIndex) => (
-                  <Table.Row
-                    key={dtIndex}
-                    className={`hover:bg-primary-100 ${canSelect && "cursor-pointer"
-                      }`}
-                  >
-                    {canSelect && (
-                      <Table.Cell className="text-center">
-                        <Checkbox
-                          checked={isSelect(dt)}
-                          toggle
-                          onChange={(evt, { checked }) => {
-                            if (!canSelect) return;
-                            onItemSelect(dt);
-                          }}
-                        />
-                      </Table.Cell>
-                    )}
-                    {columns.map((col, colIndex) => {
-                      let className =
-                        "border-t-0 px-6 align-middle border-l-0 border-r-0 text-sm whitespace-nowrap p-2 text-left";
-                      if (col.fixed === "right") {
-                        className += " sticky right-0 bg-white";
-                      }
-                      return (
-                        <Table.Cell key={colIndex} className={className}>
-                          {
-                            //@ts-ignore
-                            col.render
-                              ? //@ts-ignore
-                              col.render(getFieldData(dt, col.field), dt)
-                              : getFieldData(dt, col.field)
-                          }
+                {data.map((dt, dtIndex) => {
+                  const errors = getErrorValue(dt, dt.text_note)
+
+                  return (
+                    <Table.Row
+                      key={dtIndex}
+                      className={`hover:bg-primary-100 ${canSelect && "cursor-pointer"}`}
+                    >
+                      {canSelect && (
+                        <Table.Cell className="text-center">
+                          <Checkbox
+                            checked={isSelect(dt)}
+                            toggle
+                            onChange={(evt, { checked }) => {
+                              if (!canSelect) return;
+                              onItemSelect(dt);
+                            }}
+                          />
                         </Table.Cell>
-                      );
-                    })}
-                  </Table.Row>
-                ))}
+                      )}
+                      {columns.map((col, colIndex) => {
+                        let className =
+                          "border-t-0 px-6 align-middle border-l-0 border-r-0 text-sm whitespace-nowrap p-2 text-left";
+                        if (col.fixed === "right") {
+                          className += " sticky right-0 bg-white";
+                        }
+                        return (
+                          <Table.Cell key={colIndex} className={`${className} ${isInvalid(errors, col.field) && "alert-field"}`}>
+                            {
+                              //@ts-ignore
+                              col.render
+                                ? //@ts-ignore
+                                col.render(getFieldData(dt, col.field), dt)
+                                : getFieldData(dt, col.field)
+                            }
+                          </Table.Cell>
+                        );
+                      })}
+                    </Table.Row>
+                  )
+                })}
               </Table.Body>
             </Table>
             {!loading && data.length === 0 ? <Empty /> : null}
