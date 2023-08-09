@@ -7,6 +7,7 @@ import Login from "login";
 import ModalManager from "modal";
 import Register from "register";
 import Tracking from "tracking";
+import ScanData from "scan";
 
 function App() {
   return (

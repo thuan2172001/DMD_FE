@@ -264,7 +264,7 @@ function GridView({
         rowButtons.push({
           "icon": "sync",
           "color": "blue",
-          "label": "Generate barcode",
+          "label": "Generate QR Code",
           "action": "generate",
           "position": "row",
         })

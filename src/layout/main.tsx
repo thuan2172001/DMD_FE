@@ -6,6 +6,7 @@ import Form from "form";
 import Chart from "chart";
 import Table from "table";
 import ImportData from "import";
+import ScanData from "scan";
 
 export default function Main({ showMenu }: { showMenu: boolean }) {
   return (
@@ -14,6 +15,7 @@ export default function Main({ showMenu }: { showMenu: boolean }) {
         <Routes>
           <Route path="/" element={<Home />}></Route>
           <Route path="/profile" element={<Profile />}></Route>
+          <Route path="/scan-data" element={<ScanData />}></Route>
           <Route path="/dashboard" element={<Home />}></Route>
           <Route path="/list/:name" element={<List />}></Route>
           <Route path="/form/:name/:mode" element={<Form />}></Route>

@@ -47,6 +47,8 @@ export default function Tracking() {
 
     // Remove the added style element after printing
     styleElement.remove();
+
+    nav('/scan-data')
   }
 
   useEffect(() => {

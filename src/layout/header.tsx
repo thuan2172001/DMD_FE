@@ -19,7 +19,7 @@ export default function Header({ toggleMenu }: { toggleMenu: Function }) {
     <Menu inverted fluid fixed="top">
       <Link to="/">
         <Menu.Item className="w-[197px] text-center">
-          <Image src="logo.png" className="block mx-auto h-8" />
+          <Image src="logo192.png" className="block mx-auto h-8" />
         </Menu.Item>
       </Link>
 
