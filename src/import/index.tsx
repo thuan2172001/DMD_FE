@@ -26,7 +26,7 @@ export function getErrorValue(rowData: any, text: string) {
   let name = rowData["Tên*"] ?? rowData["customer_name"];
   let address = rowData["Địa chỉ*"] ?? rowData["address"];
   let city = rowData["Thành phố*"] ?? rowData["city"];
-  let country = rowData["Nước*"] ?? rowData["country"];
+  // let country = rowData["Nước*"] ?? rowData["country"];
   let state = rowData["Bang*"] ?? rowData["state"];
   let pdf = rowData["PDF"] ?? rowData["pdf"];
   let textLower = text?.toLowerCase() ?? "";
@@ -48,9 +48,9 @@ export function getErrorValue(rowData: any, text: string) {
   let checkCity =
     textLower.includes(city?.toLowerCase()) ||
     textLower.includes(city?.replaceAll(" ", "")?.toLowerCase());
-  let checkCountry =
-    textLower.includes(country?.toLowerCase()) ||
-    textLower.includes(country?.replaceAll(" ", "")?.toLowerCase());
+  // let checkCountry =
+  //   textLower.includes(country?.toLowerCase()) ||
+  //   textLower.includes(country?.replaceAll(" ", "")?.toLowerCase());
   let checkState =
     textLower.includes(state?.toLowerCase()) ||
     textLower.includes(state?.replaceAll(" ", "")?.toLowerCase());
@@ -59,7 +59,7 @@ export function getErrorValue(rowData: any, text: string) {
   !checkName && errorValue.push(...["Tên*", "customer_name"]);
   !checkAddress && errorValue.push(...["Địa chỉ*", "address"]);
   !checkCity && errorValue.push(...["Thành phố*", "city"]);
-  !checkCountry && errorValue.push(...["Nước*", "country"]);
+  // !checkCountry && errorValue.push(...["Nước*", "country"]);
   !checkState && errorValue.push(...["Bang*", "state"]);
 
   if (errorValue.length && !requireCf.includes(tracking)) {
@@ -144,6 +144,7 @@ export default function ImportData() {
           };
 
           let errorValue = getErrorValue(formatData, pdfData?.text);
+          console.log({errorValue, length: errorValue.length , status: errorValue.length  === 0})
 
           formatData = {
             ...formatData,
@@ -168,13 +169,11 @@ export default function ImportData() {
             text: pdfData?.text,
           };
 
-          let errorValue = getErrorValue(formatData, pdfData?.text);
-
           formatData = {
             ...formatData,
             Tracking: 'Tracking ID Not found',
             errorValue: ["Tracking"],
-            Status: errorValue.length === 0
+            Status: false
           }
 
           return formatData;
@@ -215,7 +214,7 @@ export default function ImportData() {
             state: dt["Bang*"],
             zip: dt["ZIP*"],
             country: dt["Nước*"],
-            city: dt["Thành phố*"],
+            city: dt["Thành phố*"],
             pdf: dt["PDF"],
             page: dt["Page"],
             status: dt["Status"],
@@ -225,6 +224,7 @@ export default function ImportData() {
       };
       await api.insertOrder(payload);
       ui.alert(t("Insert Success"));
+      setTableCell([])
     } catch (error: any) {
       ui.alert(t(error.message));
     } finally {
@@ -237,7 +237,7 @@ export default function ImportData() {
       <div className="w-full justify-center mx-auto self-center">
         <Card fluid>
           <div className="text-2xl text-center font-bold py-4">
-            {t("Import data")} {JSON.stringify(requireCf)}
+            {t("Import data")} 
           </div>
 
           <Card.Content
