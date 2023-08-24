@@ -15,13 +15,17 @@ export default function ScanData() {
       if (!tracking_id) {
         return;
       }
-      if (tracking_id.length < 26) {
+      let data = tracking_id;
+      if (tracking_id.length === 34) {
+        data = tracking_id.slice(8);
+      }
+      if (data.length < 26) {
         return;
       }
-      let rs = await api.post('/order/get-by-tracking', {
-        tracking: tracking_id
-      })
-      nav(`/tracking/${tracking_id}`)
+      // let rs = await api.post('/order/get-by-tracking', {
+      //   tracking: data
+      // })
+      nav(`/tracking/${data}`)
     }
     load();
 
@@ -34,6 +38,7 @@ export default function ScanData() {
         name={'Tracking ID'}
         type="text"
         onChange={(evt, { value }) => {
+          value = value.trim();
           setTrackingId(value);
         }}
       />
