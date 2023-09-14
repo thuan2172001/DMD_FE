@@ -42,6 +42,15 @@ export default function ScanData() {
           setTrackingId(value);
         }}
       />
+      {/* <TextArea
+        className="mt-2 w-full border-2 border-black rounded-lg p-2 h-[500px]"
+        name={'Tracking ID'}
+        type="text"
+        onChange={(evt, { value }) => {
+          value = value.toString().trim();
+          setTrackingId(value);
+        }}
+      /> */}
       <div className="w-[120px] mt-4">
         <Button
           onClick={(e) => {

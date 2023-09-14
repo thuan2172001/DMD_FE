@@ -330,7 +330,7 @@ export default function ImportData() {
         <Card.Content>
           <div
             className="block w-full overflow-x-auto relative"
-            style={{ height: "calc(100vh - 250px)" }}
+            style={{ height: "calc(100vh - 320px)" }}
           >
             <Table celled sortable>
               <Table.Header>

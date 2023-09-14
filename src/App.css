@@ -123,13 +123,14 @@ pre {
 
 .border-bottom-black {
   box-shadow: 0px 15px 10px -15px #111 !important;    
+  background-color: white !important;
 }
 
 .ui.sortable.table thead th {
   border-left: unset !important;
 }
 
-.ui.inverted.menu {
+.ui.inverted.menu :not(.border-bottom-black) {
   background: transparent !important;
 }
 

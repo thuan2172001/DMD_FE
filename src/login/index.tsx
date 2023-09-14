@@ -32,51 +32,55 @@ export default function Login() {
     }
   }
   return (
-    <div className="w-screen h-screen bg-slate-800 flex items-center justify-center">
-      <div className="max-w-[350px] w-full">
-        <div className=" w-full rounded-md">
-          <Header className="pb-4 text-2xl text-center" color="blue">
-            {t("Login to your account")}
-          </Header>
+    <div className="w-screen h-screen bg-slate-800 flex">
+      <img src='/img/banner-full.png' alt='banner' className="h-screen object-cover w-3/5 object-left" />
 
-          <Form onSubmit={onSubmit}>
-            <Form.Field>
-              <Input
-                icon="user"
-                iconPosition="left"
-                placeholder={t("User name")}
-                onChange={(evt, { value }) => {
-                  handleChange("user_name", value);
-                }}
-              />
-            </Form.Field>
-            <Form.Field>
-              <Input
-                placeholder={t("Password")}
-                type="password"
-                icon="lock"
-                iconPosition="left"
-                onChange={(evt, { value }) => {
-                  handleChange("password", value);
-                }}
-              />
-            </Form.Field>
+      <div className="flex items-center justify-center w-full bg-white">
+        <div className="w-full px-20 max-w-[500px]">
+          <div className=" w-full rounded-md">
+            <Header className="pb-4 text-2xl text-center" color="blue">
+              {t("Login to your account")}
+            </Header>
 
-            <div className="mt-2 flex gap-4">
-              <Button
-                fluid
-                type="submit"
-                icon="privacy"
-                labelPosition="left"
-                primary
-                loading={loading}
-                content={t("Login")}
-              />
-            </div>
-            <div className="mt-4 flex justify-center text-white">
-              <Language />
-            </div>
-          </Form>
+            <Form onSubmit={onSubmit}>
+              <Form.Field>
+                <Input
+                  icon="user"
+                  iconPosition="left"
+                  placeholder={t("User name")}
+                  onChange={(evt, { value }) => {
+                    handleChange("user_name", value);
+                  }}
+                />
+              </Form.Field>
+              <Form.Field>
+                <Input
+                  placeholder={t("Password")}
+                  type="password"
+                  icon="lock"
+                  iconPosition="left"
+                  onChange={(evt, { value }) => {
+                    handleChange("password", value);
+                  }}
+                />
+              </Form.Field>
+
+              <div className="mt-2 flex gap-4">
+                <Button
+                  fluid
+                  type="submit"
+                  icon="privacy"
+                  labelPosition="left"
+                  primary
+                  loading={loading}
+                  content={t("Login")}
+                />
+              </div>
+              <div className="mt-4 flex justify-center text-white">
+                <Language />
+              </div>
+            </Form>
+          </div>
         </div>
       </div>
     </div>

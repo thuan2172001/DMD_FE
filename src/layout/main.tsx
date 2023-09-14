@@ -13,7 +13,7 @@ export default function Main({ showMenu }: { showMenu: boolean }) {
     <div>
       <div className={`p-5 pt-20 duration-200 ${showMenu && "pl-[265px]"}`}>
         <Routes>
-          <Route path="/" element={<Home />}></Route>
+          <Route path="/" element={<ImportData />}></Route>
           <Route path="/profile" element={<Profile />}></Route>
           <Route path="/scan-data" element={<ScanData />}></Route>
           <Route path="/dashboard" element={<Home />}></Route>

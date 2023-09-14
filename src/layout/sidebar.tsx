@@ -90,7 +90,7 @@ export default function Sidebar({ showMenu }: { showMenu: boolean }) {
               </div>
             </Menu.Item>
             {i.children && i.children.length > 0 && open.includes(index) && (
-              <Menu vertical inverted fluid className="pl-3">
+              <Menu vertical inverted fluid className="">
                 {i.children.map((c: any, cIndex: number) => (
                   <Menu.Item
                     as="a"
@@ -98,7 +98,7 @@ export default function Sidebar({ showMenu }: { showMenu: boolean }) {
                     key={cIndex}
                     active={c.url === pathname}
                   >
-                    <div className="flex items-center">
+                    <div className="flex items-center ml-3">
                       <p className="mr-2 w-8 text-center">
                         {/* @ts-ignore */}
                         <Icon name={c.icon} size="large" />
