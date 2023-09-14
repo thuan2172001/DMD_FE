@@ -26,6 +26,7 @@ import {
   Checkbox,
   Dropdown,
   Image,
+  Input,
   Label,
   Modal,
   Pagination,
@@ -202,24 +203,29 @@ function GridView({
             case CellDisplay.Image:
               if (val) {
                 return (
-                  <Image
-                    alt="cell image"
-                    src={val || "/default.jpg"}
-                    size="tiny"
-                    rounded
-                    onClick={() => {
-                      setViewImage(val);
-                    }}
-                  />
+                  <div className="cursor-pointer text-[#3c81c2]" onClick={() => {
+                    setViewImage(val)
+                  }}>View</div>
+                  // <Image
+                  //   className="small-image"
+                  //   alt="cell image"
+                  //   src={val || "/default.jpg"}
+                  //   size="tiny"
+                  //   rounded
+                  //   onClick={() => {
+                  //     setViewImage(val);
+                  //   }}
+                  // />
                 );
               } else {
                 return (
-                  <Image
-                    alt="cell image"
-                    size="tiny"
-                    src={val || "/default.jpg"}
-                    rounded
-                  />
+                  <></>
+                  // <Image
+                  //   alt="cell image"
+                  //   size="tiny"
+                  //   src={val || "/default.jpg"}
+                  //   rounded
+                  // />
                 );
               }
 
@@ -318,7 +324,7 @@ function GridView({
       let postfn = api.post;
       let rs = await postfn(`${gridInfo.api}`, queryOption);
       if (!isMount) return;
-      setTotal(gridInfo.host === "bridge" ? rs?.total : rs?.count);
+      setTotal(rs?.count);
       setData(rs.data);
       setLoading(false);
     }
@@ -605,6 +611,13 @@ function GridView({
                   />
                 )}
                 <Button
+                  color="blue"
+                  icon="search"
+                  content="Search"
+                  labelPosition="left"
+                  // onClick={() => search()}
+                />
+                <Button
                   color="green"
                   icon="download"
                   content="Export"
@@ -614,13 +627,24 @@ function GridView({
               </div>
             </div>
           </Card.Header>
+          <div className="flex wrap gap-2">
+            {columns.map((column) => {
+              if (['tracking_id', 'name', 'zip', 'city'].includes(column.field))
+                return (
+                  <div>
+                    <div className="mb-1 ml-0.5">{column.label}</div>
+                    <Input />
+                  </div>
+                )
+            })}
+          </div>
         </Card.Content>
         <Card.Content>
           <div
             className="block w-full overflow-x-auto relative"
-            style={{ height: "calc(100vh - 250px)" }}
+            style={{ height: "calc(100vh - 320px)" }}
           >
-            <Table celled sortable>
+            <Table sortable>
               <Table.Header>
                 <Table.Row>
                   {canSelect && (
@@ -699,7 +723,7 @@ function GridView({
                           className += " sticky right-0 bg-white";
                         }
                         return (
-                          <Table.Cell key={colIndex} className={`${className} ${isInvalid(errors, col.field) && "alert-field"}`}>
+                          <Table.Cell key={colIndex} className={`${className} ${isInvalid(errors, col.field) && "fa alert-field"}`}>
                             {
                               //@ts-ignore
                               col.render

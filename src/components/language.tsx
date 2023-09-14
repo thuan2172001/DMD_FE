@@ -12,7 +12,7 @@ export default function Language() {
   return (
     <Dropdown
       trigger={
-        <span>
+        <span className="text-black">
           Language &nbsp;
           {language === "vi" ? <Flag name="vn" /> : <Flag name="england" />}
         </span>

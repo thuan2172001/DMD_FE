@@ -74,10 +74,65 @@ pre {
 }
 
 .alert-field {
-  background-color: rgb(212, 30, 30) !important;
-  color: white;
+  /* background-color: rgb(212, 30, 30) !important; */
+  /* color: white; */
+  color: red;
+  display: table-cell !important;
+}
+
+.alert-field::before {
+  content: "\f071";
+  font-family: "Font Awesome 5 Free"; 
+  margin-right: 2px;
+  color: red;
 }
 
 .unset-input {
   color: black;
+}
+
+.bg-light {
+  /* background: #2c75b6 !important; */
+  background: white !important;
+}
+
+.ui.inverted.menu.menu-blue .item, .ui.inverted.menu .item>a:not(.ui) {
+  background-color: #5d9dd6;
+}
+
+.menu-blue {
+  background-color: #5d9dd6 !important;
+}
+
+.menu-blue-bold {
+  padding-right: 1.142857em !important;
+  padding-left: 1.142857em !important;
+}
+
+.menu-blue-bold {
+  background-color: #ffffff !important;
+}
+
+.bg-linear-blue {
+  background-image: linear-gradient(#05335c, #245481);
+}
+
+.bg-transparent-force {
+  background: transparent !important;
+}
+
+.border-bottom-black {
+  box-shadow: 0px 15px 10px -15px #111 !important;    
+}
+
+.ui.sortable.table thead th {
+  border-left: unset !important;
+}
+
+.ui.inverted.menu {
+  background: transparent !important;
+}
+
+.small-image {
+  cursor: pointer;
 }

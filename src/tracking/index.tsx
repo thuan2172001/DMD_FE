@@ -69,7 +69,7 @@ export default function Tracking() {
       } else {
         setTimeout(() => {
           setTrigger(!trigger)
-        }, 1000)
+        }, 500)
       }
     }
   }, [data, trigger])

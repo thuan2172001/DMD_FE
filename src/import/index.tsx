@@ -17,7 +17,7 @@ import { api, utils } from "services";
 import ui from "services/ui";
 
 export function isInvalid(errorValue: string[], header: string) {
-  let status = errorValue?.includes(header) || errorValue?.includes("PDF");
+  let status = errorValue?.includes(header) || (errorValue?.includes("PDF") && header !== '');
   return status;
 }
 
@@ -28,6 +28,7 @@ export function getErrorValue(rowData: any, text: string) {
   let city = rowData["Thành phố*"] ?? rowData["city"];
   // let country = rowData["Nước*"] ?? rowData["country"];
   let state = rowData["Bang*"] ?? rowData["state"];
+  let zip = rowData["ZIP*"] ?? rowData["zip"];
   let pdf = rowData["PDF"] ?? rowData["pdf"];
   let textLower = text?.toLowerCase() ?? "";
   let textLowerStrim = textLower.replaceAll(" ", "");
@@ -54,6 +55,9 @@ export function getErrorValue(rowData: any, text: string) {
   let checkState =
     textLower.includes(state?.toLowerCase()) ||
     textLower.includes(state?.replaceAll(" ", "")?.toLowerCase());
+  let checkZip =
+    textLower.includes(zip?.toLowerCase()) ||
+    textLower.includes(zip?.replaceAll(" ", "")?.toLowerCase());
 
   !checkExist && errorValue.push(...["PDF", "pdf"]);
   !checkName && errorValue.push(...["Tên*", "customer_name"]);
@@ -61,6 +65,7 @@ export function getErrorValue(rowData: any, text: string) {
   !checkCity && errorValue.push(...["Thành phố*", "city"]);
   // !checkCountry && errorValue.push(...["Nước*", "country"]);
   !checkState && errorValue.push(...["Bang*", "state"]);
+  !checkZip && errorValue.push(...["ZIP*", "zip"]);
 
   if (errorValue.length && !requireCf.includes(tracking)) {
     requireCf.push(tracking);
@@ -359,7 +364,7 @@ export default function ImportData() {
                           return (
                             <Table.Cell
                               key={header + idx}
-                              className={`${isInvalid(errorValue, header) && "alert-field"}`}
+                              className={`${isInvalid(errorValue, header) && "fa alert-field"}`}
                             >
                               {col[header] ? (
                                 <ImagePopup imageUrl={col[header]} />
@@ -439,7 +444,7 @@ export const DataInput = ({
   return (
     <Table.Cell
       key={header + idx}
-      className={`${isInvalid(col.errorValue, header) && "alert-field"}`}
+      className={`${isInvalid(col.errorValue, header) && "fa alert-field"}`}
     >
       {!isEdit ? (
         <div className="flex gap-2 justify-between">

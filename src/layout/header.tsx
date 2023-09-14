@@ -16,20 +16,21 @@ export default function Header({ toggleMenu }: { toggleMenu: Function }) {
   }
 
   return (
-    <Menu inverted fluid fixed="top">
+    <Menu inverted fluid fixed="top" className='bg-light border-bottom-black'>
       <Link to="/">
-        <Menu.Item className="w-[197px] text-center">
-          <Image src="logo192.png" className="block mx-auto h-8" />
+        <Menu.Item className="w-[250px] text-center menu-blue-bold">
+          <Image src="logo2.png" className="block mx-auto h-8" />
         </Menu.Item>
       </Link>
 
-      <Menu.Item
+      {/* <Menu.Item
+        className="menu-blue-bold"
         onClick={() => {
           toggleMenu();
         }}
       >
         <i className="icon bars" />
-      </Menu.Item>
+      </Menu.Item> */}
       <Menu.Menu position="right">
         <Menu.Item>
           <Language />
@@ -37,7 +38,7 @@ export default function Header({ toggleMenu }: { toggleMenu: Function }) {
         <Menu.Item>
           <Dropdown
             trigger={
-              <span>
+              <span className="text-black">
                 {`${t("Hi")} ${user.name}`}{" "}
                 <Image
                   src={user.avatar || "/default-avatar.png"}

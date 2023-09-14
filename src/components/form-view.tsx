@@ -7,6 +7,7 @@ import dataServices from "../services/data";
 import Schema from "./schema";
 import { api, ui } from "services";
 import { Button, Card } from "semantic-ui-react";
+import { getErrorValue } from "import";
 interface FormViewProps {
   formName: string;
   params: { mode: string; id?: any; embed?: any };
@@ -39,16 +40,16 @@ function FormView({
   );
   async function loadData() {
     let postfn = api.post;
-    let rs    
-      rs = await postfn(`${formInfo.api}`, {
-        where: { id },
-        offset: 0,
-        limit: 1,
-      });    
-      setPayload(rs?.data[0]);
+    let rs
+    rs = await postfn(`${formInfo.api}`, {
+      where: { id },
+      offset: 0,
+      limit: 1,
+    });
+    setPayload(rs?.data[0]);
     setLoading(false);
   }
-  useEffect(() => {        
+  useEffect(() => {
     if (!(mode === "edit" && id)) {
       setPayload(params.embed || {});
       setLoading(false);
@@ -70,11 +71,15 @@ function FormView({
     if (btn.confirmText) {
       await ui.confirm(t(btn.confirmText));
     }
-    try {      
+    if (formName === 'edit-order') {
+      let errors = getErrorValue(payload, payload.text_note)
+      payload.status = errors.length === 0;
+      payload.errorValue = errors;
+    }
+    try {
       setSubmitting(true);
       let postfn = api.post;
-      let rs
-     rs = await postfn(btn.api, payload);
+      let rs = await postfn(btn.api, payload);
       if (onCreated) {
         onCreated(rs);
       }

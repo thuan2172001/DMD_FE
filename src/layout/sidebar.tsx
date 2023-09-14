@@ -48,9 +48,9 @@ export default function Sidebar({ showMenu }: { showMenu: boolean }) {
     <div
       className={`duration-200 fixed ${
         showMenu ? "left-0" : "left-[-250px]"
-      } left-0 top-0 z-10 pt-16 w-[250px] h-screen overflow-auto bg-[#1b1c1d]`}
+      } left-0 top-0 z-10 pt-16 w-[250px] h-screen overflow-auto bg-linear-blue`}
     >
-      <Menu vertical inverted fluid>
+      <Menu vertical inverted fluid className="bg-transparent-force">
         {menus.map((i: any, index: number) => (
           <div key={index}>
             <Menu.Item
