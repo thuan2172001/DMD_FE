@@ -1,4 +1,4 @@
-import { Button, Form, Header, Input } from "semantic-ui-react";
+import { Button, Form, Header, Image, Input } from "semantic-ui-react";
 import { useTranslation } from "react-i18next";
 import api from "services/api";
 import { setUserInfo } from "reducer/user.slice";
@@ -38,6 +38,7 @@ export default function Login() {
       <div className="flex items-center justify-center w-full bg-white">
         <div className="w-full px-20 max-w-[500px]">
           <div className=" w-full rounded-md">
+            <Image src="logo2.png" className="block mx-auto h-14" />
             <Header className="pb-4 text-2xl text-center" color="blue">
               {t("Login to your account")}
             </Header>
@@ -76,9 +77,9 @@ export default function Login() {
                   content={t("Login")}
                 />
               </div>
-              <div className="mt-4 flex justify-center text-white">
+              {/* <div className="mt-4 flex justify-center text-white">
                 <Language />
-              </div>
+              </div> */}
             </Form>
           </div>
         </div>

@@ -130,7 +130,7 @@ pre {
   border-left: unset !important;
 }
 
-.ui.inverted.menu :not(.border-bottom-black) {
+.ui.inverted.menu :not(.border-bottom-black) :not(.unset-background) {
   background: transparent !important;
 }
 

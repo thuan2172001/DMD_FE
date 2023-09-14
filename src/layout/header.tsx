@@ -19,7 +19,7 @@ export default function Header({ toggleMenu }: { toggleMenu: Function }) {
     <Menu inverted fluid fixed="top" className='bg-light border-bottom-black'>
       <Link to="/">
         <Menu.Item className="w-[250px] text-center menu-blue-bold">
-          <Image src="logo2.png" className="block mx-auto h-8" />
+          <Image src="logo2.png" className="block mx-auto h-8 scale-[1.5]" />
         </Menu.Item>
       </Link>
 
@@ -50,7 +50,7 @@ export default function Header({ toggleMenu }: { toggleMenu: Function }) {
             direction="left"
             pointing
           >
-            <Dropdown.Menu>
+            <Dropdown.Menu className="unset-background">
               <Dropdown.Item
                 icon="user"
                 text={t("Profile")}
