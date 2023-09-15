@@ -10,7 +10,10 @@ const ImagePopup = ({ imageUrl }: { imageUrl: string }) => {
 
     return (
         <div className="cursor-pointer">
-            <Image src={imageUrl} alt="Image" onClick={togglePopup} className='h-8 object-contain' />
+            {/* <Image src={imageUrl} alt="Image" onClick={togglePopup} className='h-8 object-contain' /> */}
+            <div className="cursor-pointer text-[#3c81c2] font-bold" onClick={() => {
+                togglePopup()
+            }}>View</div>
 
             <Modal
                 open={showPopup}

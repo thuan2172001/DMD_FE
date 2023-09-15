@@ -87,6 +87,9 @@ export default function ImportData() {
   const [tableCellData, setTableCell] = useState([]);
   const [percentage, setPercentage] = useState(100);
 
+  const [excelName, setExcelName] = useState('');
+  const [pdfName, setPdfName] = useState('')
+
   const excel = useRef<any>();
   const pdf = useRef<any>();
 
@@ -99,8 +102,8 @@ export default function ImportData() {
   async function check() {
     try {
       setLoading(true);
-      let excelFileInput = excel.current.inputRef.current;
-      let pdfFileInput = pdf.current.inputRef.current;
+      let excelFileInput = excel.current;
+      let pdfFileInput = pdf.current;
       if (
         excelFileInput &&
         pdfFileInput &&
@@ -149,7 +152,7 @@ export default function ImportData() {
           };
 
           let errorValue = getErrorValue(formatData, pdfData?.text);
-          console.log({errorValue, length: errorValue.length , status: errorValue.length  === 0})
+          console.log({ errorValue, length: errorValue.length, status: errorValue.length === 0 })
 
           formatData = {
             ...formatData,
@@ -242,7 +245,7 @@ export default function ImportData() {
       <div className="w-full justify-center mx-auto self-center">
         <Card fluid>
           <div className="text-2xl text-center font-bold py-4">
-            {t("Import data")} 
+            {t("Import data")}
           </div>
 
           <Card.Content
@@ -256,31 +259,79 @@ export default function ImportData() {
                     icon="compose"
                   />
                 )}
+
+                <div className="mt-2">
+                  <div>Title</div>
+                  <Input
+                    className="mt-2 w-[474px]"
+                    fluid
+                    placeholder={t("Title")}
+                    onChange={(evt, { value }) => {
+                      handleChange("title", value);
+                    }}
+                  />
+                </div>
                 <div className="flex gap-8">
                   <div className="mt-2">
-                    <div>Title</div>
-                    <Input
-                      className="mt-2 w-80"
-                      fluid
-                      placeholder={t("Title")}
-                      onChange={(evt, { value }) => {
-                        handleChange("title", value);
-                      }}
-                    />
+                    <div>Metadata file *</div>
+                    <div className="flex items-center justify-center w-full mt-2">
+                      <label htmlFor="dropzone-file-excel" className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600">
+                        {!excelName ? <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                          <svg className="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2" />
+                          </svg>
+                          <p className="mb-2 text-sm text-gray-500 dark:text-gray-400 px-4">
+                            <span className="font-semibold">Click to upload</span> or drag and drop
+                          </p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">XLSX or CSV</p>
+                        </div> :
+                          <div className="flex flex-col items-center justify-center pt-5 pb-6 min-w-[217px]">
+                            <img className="w-14" src='/assets/images/excel.svg' />
+                            <p className="mb-2 text-sm text-gray-500 dark:text-gray-400 px-4">
+                              <span className="font-semibold">{excelName}</span>
+                            </p>
+                          </div>}
+                        <input id="dropzone-file-excel" type="file" className="hidden" ref={excel} onChange={(e) => {
+                          let fileName = e?.target?.files?.[0]?.name;
+                          if (fileName) {
+                            setExcelName(fileName)
+                          }
+                        }} />
+                      </label>
+                    </div>
                   </div>
 
                   <div className="mt-2">
-                    <div>Select metadata file (xlsx, csv)</div>
-                    <Input className="mt-2" type="file" ref={excel} />
-                  </div>
-
-                  <div className="mt-2">
-                    <div>Select barcode file (pdf only)</div>
-                    <Input className="mt-2" type="file" ref={pdf} />
+                    <div>Barcode File *</div>
+                    <div className="flex items-center justify-center w-full mt-2">
+                      <label htmlFor="dropzone-file-pdf" className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600">
+                        {!pdfName ? <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                          <svg className="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2" />
+                          </svg>
+                          <p className="mb-2 text-sm text-gray-500 dark:text-gray-400 px-4">
+                            <span className="font-semibold">Click to upload</span> or drag and drop
+                          </p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">PDF Only</p>
+                        </div> :
+                          <div className="flex flex-col items-center justify-center pt-5 pb-6 min-w-[217px]">
+                            <img className="w-14" src='/assets/images/pdf.png' />
+                            <p className="mb-2 text-sm text-gray-500 dark:text-gray-400 px-4">
+                              <span className="font-semibold">{pdfName}</span>
+                            </p>
+                          </div>}
+                        <input id="dropzone-file-pdf" type="file" className="hidden" ref={pdf} onChange={(e) => {
+                          let fileName = e?.target?.files?.[0]?.name;
+                          if (fileName) {
+                            setPdfName(fileName)
+                          }
+                        }} />
+                      </label>
+                    </div>
                   </div>
                 </div>
 
-                <div className="mt-2 w-80">
+                <div className="mt-4 w-[474px]">
                   {loading && percentage != 100 ? (
                     <div>
                       <Progress
@@ -302,6 +353,7 @@ export default function ImportData() {
                         color="blue"
                         loading={loading}
                       >
+                        <Icon name='sync'></Icon>
                         Get data
                       </Button>
                       {tableCellData?.length ? (
@@ -314,6 +366,7 @@ export default function ImportData() {
                           color="green"
                           loading={loading}
                         >
+                          <Icon name='save'></Icon>
                           Save data
                         </Button>
                       ) : (
@@ -444,11 +497,11 @@ export const DataInput = ({
   return (
     <Table.Cell
       key={header + idx}
-      className={`${isInvalid(col.errorValue, header) && "fa alert-field"}`}
+      className={``}
     >
       {!isEdit ? (
-        <div className="flex gap-2 justify-between">
-          <div>{value}</div>
+        <div className="flex gap-2 justify-between text-sm">
+          <span className={`${isInvalid(col.errorValue, header) && "fa alert-field"}`}>{value}</span>
           <Icon
             name="edit"
             color='blue'
@@ -459,7 +512,7 @@ export const DataInput = ({
           />
         </div>
       ) : (
-        <div className="flex gap-2 justify-between">
+        <div className="flex gap-2 justify-between text-sm">
           <input
             type="text"
             value={value}

@@ -73,10 +73,6 @@ function GridView({
   const [gridInfo, setGridInfo] = useState<GridEntity>(null);
   const [total, setTotal] = useState<number>(0);
   const [json, setJson] = useState<any>(null);
-  const [mail, setMail] = useState<any>(null);
-  const [reward, setReward] = useState<any>(null);
-  const [ticketId, setTicketId] = useState<number>(null);
-  const [bidreward, setBidReward] = useState<any>(null);
   const [tree, setTree] = useState<any>(null);
   const [language, setLanguage] = useState<any>(null);
   const [order, setOrder] = useState<[field: string, order: "DESC" | "ASC"]>([
@@ -89,7 +85,9 @@ function GridView({
   const [filter, setFilter] = useState<any>({});
   const [query, setQuery] = useState<any>({});
   const [timestamp, setTimestamp] = useState<number>(0);
-  const [rewardRarity, setRewardRarity] = useState<any>(null);
+  const [whereFilter, setWhereFilter] = useState({})
+  const [trigger, setTrigger] = useState(false)
+
   function getFileName(str: string) {
     if (!str) return str;
     return str.split("/").pop();
@@ -117,28 +115,6 @@ function GridView({
                   {val === null ? "..." : `${JSON.stringify(val || [])}`}
                 </span>
               );
-            case CellDisplay.RewardRarity:
-              return (
-                <span
-                  className="cursor-pointer text-blue-800 hover:underline max-w-[150px] overflow-hidden text-ellipsis inline-block"
-                  onClick={() => {
-                    setRewardRarity(val);
-                  }}
-                >
-                  View
-                </span>
-              );
-            case CellDisplay.Ticket:
-              return (
-                <span
-                  className="cursor-pointer text-blue-800 hover:underline max-w-[150px] overflow-hidden text-ellipsis inline-block"
-                  onClick={() => {
-                    setTicketId(row.id);
-                  }}
-                >
-                  View
-                </span>
-              );
             case CellDisplay.MultiLanguage:
               return (
                 <span
@@ -148,39 +124,6 @@ function GridView({
                   }}
                 >
                   {val[0].content}
-                </span>
-              );
-            case CellDisplay.Mail:
-              return (
-                <span
-                  className="cursor-pointer text-blue-800 hover:underline max-w-[150px] overflow-hidden text-ellipsis inline-block"
-                  onClick={() => {
-                    setMail(val);
-                  }}
-                >
-                  {val[0].content}
-                </span>
-              );
-            case CellDisplay.Reward:
-              return (
-                <span
-                  className="cursor-pointer text-blue-800 hover:underline max-w-[150px] overflow-hidden text-ellipsis inline-block"
-                  onClick={() => {
-                    setReward(val);
-                  }}
-                >
-                  {val?.length} items
-                </span>
-              );
-            case CellDisplay.BidItem:
-              return (
-                <span
-                  className="cursor-pointer text-blue-800 hover:underline max-w-[150px] overflow-hidden text-ellipsis inline-block"
-                  onClick={() => {
-                    setBidReward(val);
-                  }}
-                >
-                  {val?.length} items
                 </span>
               );
             case CellDisplay.File:
@@ -203,7 +146,7 @@ function GridView({
             case CellDisplay.Image:
               if (val) {
                 return (
-                  <div className="cursor-pointer text-[#3c81c2]" onClick={() => {
+                  <div className="cursor-pointer text-[#3c81c2] font-bold" onClick={() => {
                     setViewImage(val)
                   }}>View</div>
                   // <Image
@@ -294,7 +237,6 @@ function GridView({
   }, [gridInfo]);
   useEffect(() => {
     let rs = dataService.getGrid(gridName);
-    console.log({ rs, gridName })
     if (!rs) {
       return console.error("Grid not found: ", gridName);
     }
@@ -360,6 +302,17 @@ function GridView({
         }
       });
     }
+    where = {
+      ...where,
+      ...whereFilter
+    }
+
+    Object.keys(where).map((key) => {
+      if (where[key] === '') {
+        delete where[key];
+      }
+    })
+
     fetch({
       offset: currentPage * pageSize,
       limit: pageSize,
@@ -369,7 +322,7 @@ function GridView({
     return () => {
       isMount = false;
     };
-  }, [gridInfo, currentPage, pageSize, order, query, timestamp]);
+  }, [gridInfo, currentPage, pageSize, order, query, timestamp, trigger]);
   if (!gridInfo) {
     return <p>{t("Loading...")}</p>;
   }
@@ -615,7 +568,11 @@ function GridView({
                   icon="search"
                   content="Search"
                   labelPosition="left"
-                  // onClick={() => search()}
+                  loading={loading}
+                  onClick={() => {
+                    setTrigger(!trigger)
+                    setCurrentPage(0)
+                  }}
                 />
                 <Button
                   color="green"
@@ -633,7 +590,12 @@ function GridView({
                 return (
                   <div>
                     <div className="mb-1 ml-0.5">{column.label}</div>
-                    <Input />
+                    <Input onChange={(evt, { value }) => {
+                      setWhereFilter({
+                        ...whereFilter,
+                        [column.field]: value
+                      })
+                    }} />
                   </div>
                 )
             })}
