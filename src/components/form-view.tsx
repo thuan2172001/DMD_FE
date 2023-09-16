@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Button as IButton, FormEntity, BidConfigEntity } from "interfaces";
+import { Button as IButton, FormEntity } from "interfaces";
 import qs from "querystring";
 import { useTranslation } from "react-i18next";
 import Loading from "./loading";

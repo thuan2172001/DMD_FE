@@ -3,6 +3,7 @@ import {
   GridColumn,
   CellDisplay,
   GridEntity,
+  CancelStatus,
 } from "interfaces";
 import { useState, useEffect, useMemo } from "react";
 import Config from "config";
@@ -36,6 +37,7 @@ import FilterForm from "./filter-form";
 import { Link } from "react-router-dom";
 import Tree from "components/tree";
 import { getErrorValue, isInvalid } from "import";
+import { CancelModal } from "modal/cancel-modal";
 interface GridProps {
   gridName: string;
   canSelect?: boolean;
@@ -87,6 +89,7 @@ function GridView({
   const [timestamp, setTimestamp] = useState<number>(0);
   const [whereFilter, setWhereFilter] = useState({})
   const [trigger, setTrigger] = useState(false)
+  const [popup, setPopup] = useState(null);
 
   function getFileName(str: string) {
     if (!str) return str;
@@ -210,15 +213,30 @@ function GridView({
       : [];
 
     if (rowButtons?.length > 0 && !disableButton) {
-      // if (gridName === 'order') {
-      //   rowButtons.push({
-      //     "icon": "sync",
-      //     "color": "blue",
-      //     "label": "Generate QR Code",
-      //     "action": "generate",
-      //     "position": "row",
-      //   })
-      // }
+      if (gridName === 'order') {
+        rowButtons.push({
+          "icon": "cancel",
+          "color": "red",
+          "label": "Cancel",
+          "action": "popup",
+          "position": "row",
+          "popupName": 'cancel-order'
+        })
+      }
+      if (gridName === 'canceled-order') {
+        rowButtons.push({
+          "icon": "save",
+          "color": "green",
+          "label": "Approve",
+          "action": "api",
+          "position": "row",
+          "api": "/order/confirm-cancel",
+          "confirmText": "Are you sure want to confirm cancel this order ?",
+          isRender: (item: any) => {
+            return item.cancel_status === CancelStatus.Cancelling;
+          }
+        })
+      }
       cols.push({
         label: "Actions",
         field: "",
@@ -227,14 +245,15 @@ function GridView({
         width: 80,
         //@ts-ignore
         render: (val, row) => {
-          return rowButtons?.map((item, index) =>
-            renderButton(item, index, row)
-          );
+          return rowButtons?.map((item, index) => {
+            return renderButton(item, index, row)
+          });
         },
       });
     }
     return cols;
   }, [gridInfo]);
+
   useEffect(() => {
     let rs = dataService.getGrid(gridName);
     if (!rs) {
@@ -323,9 +342,11 @@ function GridView({
       isMount = false;
     };
   }, [gridInfo, currentPage, pageSize, order, query, timestamp, trigger]);
+
   if (!gridInfo) {
     return <p>{t("Loading...")}</p>;
   }
+
   function renderButton(btn: IButton, index: number, item?: any) {
     if (disableButton) {
       return null;
@@ -335,6 +356,10 @@ function GridView({
         return;
       }
     }
+    if (btn.isRender && !btn.isRender(item)) {
+      return;
+    }
+
     switch (btn.action) {
       case "api":
         return (
@@ -346,7 +371,6 @@ function GridView({
             content={t(btn.label)}
             size={btn.position === "top" ? "medium" : "mini"}
             key={index}
-            primary
             onClick={async () => {
               if (btn.confirmText) {
                 await ui.confirm(t(btn.confirmText));
@@ -358,6 +382,26 @@ function GridView({
                 ui.alert(t(btn.successMessage || "Success"));
               } catch (error: any) {
                 ui.alert(t(btn.failMessage || t(error.message) || "Fail"));
+              }
+            }}
+          />
+        );
+      case "popup":
+        return (
+          <Button
+            //@ts-ignore
+            color={btn.color || "blue"}
+            className="mr-1"
+            icon={btn.icon}
+            content={t(btn.label)}
+            size={btn.position === "top" ? "medium" : "mini"}
+            key={index}
+            onClick={async () => {
+              if (btn.popupName) {
+                setPopup({
+                  popupName: btn.popupName,
+                  item
+                })
               }
             }}
           />
@@ -532,6 +576,15 @@ function GridView({
           />
         </Modal.Content>
       </Modal>
+
+      <CancelModal
+        isOpen={popup?.popupName === 'cancel-order'}
+        item={popup?.item}
+        close={() => {
+          setPopup(null)
+        }}
+      />
+
       <Card fluid>
         <Card.Content>
           <Card.Header>

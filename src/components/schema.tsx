@@ -10,8 +10,6 @@ import {
 } from "components";
 import dayjs from "dayjs";
 import {
-  Accordion,
-  Card,
   Checkbox,
   Form,
   Input,
@@ -20,7 +18,6 @@ import {
 import UploadImage from "./upload-image";
 import MultiLanguage from "./multi-language";
 import Tree from "./tree";
-import LockFeature from "./lock-feature";
 import UploadIdentity from "./upload-identity";
 
 interface FormViewProps {
@@ -210,18 +207,6 @@ function Schema(
                       }
                     }}
                     dateFormat="yyyy/MM/dd HH:mm"
-                  />
-                </Form.Field>
-              );
-            case SchemaControl.LockFeature:
-              return (
-                <Form.Field required={ctrl.required}>
-                  <label>{t(ctrl.label)}</label>
-                  <LockFeature
-                    value={value[ctrl.field] || []}
-                    onChange={(val: any) => {
-                      handleChange(ctrl.field, val);
-                    }}
                   />
                 </Form.Field>
               );
