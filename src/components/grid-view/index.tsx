@@ -87,9 +87,13 @@ function GridView({
   const [filter, setFilter] = useState<any>({});
   const [query, setQuery] = useState<any>({});
   const [timestamp, setTimestamp] = useState<number>(0);
-  const [whereFilter, setWhereFilter] = useState({})
+  const [whereFilter, setWhereFilter] = useState<any>({})
   const [trigger, setTrigger] = useState(false)
   const [popup, setPopup] = useState(null);
+
+  useEffect(() => {
+    setWhereFilter({})
+  }, [gridName])
 
   function getFileName(str: string) {
     if (!str) return str;
@@ -338,6 +342,20 @@ function GridView({
     where = {
       ...where,
       ...whereFilter
+    }
+
+    if (where.tracking_id) {
+      where = {
+        '$and': {
+          ...where,
+          $or: {
+            tracking_id: where.tracking_id,
+            new_tracking_id: where.tracking_id
+          }
+        }
+      }
+      delete where['$and'].tracking_id
+      delete where['$and'].cancel_status
     }
 
     Object.keys(where).map((key) => {
@@ -657,12 +675,15 @@ function GridView({
                 return (
                   <div>
                     <div className="mb-1 ml-0.5">{column.label}</div>
-                    <Input onChange={(evt, { value }) => {
-                      setWhereFilter({
-                        ...whereFilter,
-                        [column.field]: value
-                      })
-                    }} />
+                    <Input
+                      value={whereFilter?.[column.field] ?? ''}
+                      onChange={(evt, { value }) => {
+                        setWhereFilter({
+                          ...whereFilter,
+                          [column.field]: value
+                        })
+                      }}
+                    />
                   </div>
                 )
             })}
