@@ -76,6 +76,10 @@ function FormView({
       payload.status = errors.length === 0;
       payload.errorValue = errors;
     }
+    if (payload?.errorValue?.length) {
+      await ui.confirm(
+        "There are some unmatch data. Are you sure want to save it ?")
+    }
     try {
       setSubmitting(true);
       let postfn = api.post;
