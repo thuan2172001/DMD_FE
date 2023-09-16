@@ -250,5 +250,11 @@
   "Evident": "Bằng chứng",
   "Are you sure want to approve this cancel request?": "Bạn có chắc muốn duyệt yêu cầu hủy buổi học này không?",
   "Feedback status": "Tình trạng đánh giá",
-  "Feedback type": "Loại đánh giá"
+  "Feedback type": "Loại đánh giá",
+  "permission_denied": "Bạn không có quyền thực hiện hành động này.",
+  "decline": "Từ chối",
+  "Decline": "Từ chối",
+  "Search": "Tìm kiếm",
+  "Export": "Tải dữ liệu",
+  "Please scan BARCODE to enter tracking ID in this form:": "Vui lòng quét MÃ VẠCH để in:"
 }

@@ -651,7 +651,7 @@ function GridView({
                 <Button
                   color="blue"
                   icon="search"
-                  content="Search"
+                  content={t('Search')}
                   labelPosition="left"
                   loading={loading}
                   onClick={() => {
@@ -662,7 +662,7 @@ function GridView({
                 <Button
                   color="green"
                   icon="download"
-                  content="Export"
+                  content={t('Export')}
                   labelPosition="left"
                   onClick={() => exportData()}
                 />
@@ -676,6 +676,7 @@ function GridView({
                   <div>
                     <div className="mb-1 ml-0.5">{column.label}</div>
                     <Input
+                      placeholder={column.label}
                       value={whereFilter?.[column.field] ?? ''}
                       onChange={(evt, { value }) => {
                         setWhereFilter({

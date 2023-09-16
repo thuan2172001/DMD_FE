@@ -17,6 +17,7 @@ import { Button, Card, Form, Select, Table } from "semantic-ui-react";
 import { DatePicker } from "components";
 import _ from "lodash";
 import saveAs from "file-saver";
+import { t } from "i18next";
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -126,7 +127,7 @@ export default function EventReportTable() {
                   loading={loading}
                   color="blue"
                   icon="search"
-                  content="Search"
+                  content={t('Search')}
                   labelPosition="left"
                   onClick={loadData}
                 />
@@ -135,7 +136,7 @@ export default function EventReportTable() {
             <div>
               <Form.Field>
                 <Button
-                  style={{marginTop: '15px'}}
+                  style={{ marginTop: '15px' }}
                   loading={loading}
                   color="teal"
                   icon="download"

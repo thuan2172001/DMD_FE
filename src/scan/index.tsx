@@ -32,7 +32,7 @@ export default function ScanData() {
   }, [tracking_id])
   return (
     <div className="p-10">
-      <div className="text-2xl font-bold">Please scan BARCODE to enter tracking ID in this form: </div>
+      <div className="text-2xl font-bold">{t('Please scan BARCODE to enter tracking ID in this form:')} </div>
       <div className="text-xl font-bold mt-2">Tracking ID (*)</div>
       <Input
         className="mt-2 w-[500px]"

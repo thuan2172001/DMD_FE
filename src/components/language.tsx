@@ -20,8 +20,8 @@ export default function Language() {
       direction="left"
       pointing
     >
-      <Dropdown.Menu>
-        <Dropdown.Item
+      <Dropdown.Menu className="unset-background">
+        {/* <Dropdown.Item
           onClick={() => {
             changeLanguage("vi");
           }}
@@ -30,7 +30,7 @@ export default function Language() {
               <Flag name="vn" /> {t("Vietnamese")}
             </p>
           }
-        />
+        /> */}
         <Dropdown.Item
           onClick={() => {
             changeLanguage("en");
