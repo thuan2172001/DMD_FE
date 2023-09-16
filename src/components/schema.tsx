@@ -25,9 +25,10 @@ interface FormViewProps {
   showError?: boolean;
   onChange?: Function;
   value?: any;
+  errorFields?: any[];
 }
 function Schema(
-  { controls, showError, value, onChange }: FormViewProps,
+  { controls, showError, value, onChange, errorFields }: FormViewProps,
   ref: any
 ) {
   useImperativeHandle(ref, () => ({
@@ -116,7 +117,7 @@ function Schema(
             case SchemaControl.Tree:
               return (
                 <Form.Field required={ctrl.required}>
-                  <label>{t(ctrl.label)}</label>
+                  <label className={`${errorFields?.includes(ctrl.field) && 'error-field-schema'}`}>{t(ctrl.label)}</label>
                   <Tree
                     value={value[ctrl.field] || []}
                     onChange={(val: any) => {
@@ -128,7 +129,7 @@ function Schema(
             case SchemaControl.Image:
               return (
                 <Form.Field required={ctrl.required}>
-                  <label>{t(ctrl.label)}</label>
+                  <label className={`${errorFields?.includes(ctrl.field) && 'error-field-schema'}`}>{t(ctrl.label)}</label>
                   <UploadImage
                     value={value[ctrl.field]}
                     onChange={(url: string) => {
@@ -140,7 +141,7 @@ function Schema(
             case SchemaControl.Upload:
               return (
                 <Form.Field required={ctrl.required}>
-                  <label>{t(ctrl.label)}</label>
+                  <label className={`${errorFields?.includes(ctrl.field) && 'error-field-schema'}`}>{t(ctrl.label)}</label>
                   <Upload
                     value={value[ctrl.field]}
                     onChange={(url: string) => {
@@ -152,7 +153,7 @@ function Schema(
             case SchemaControl.TextArea:
               return (
                 <Form.Field required={ctrl.required}>
-                  <label>{t(ctrl.label)}</label>
+                  <label className={`${errorFields?.includes(ctrl.field) && 'error-field-schema'}`}>{t(ctrl.label)}</label>
                   <TextArea
                     placeholder={ctrl.placeholder}
                     fluid
@@ -167,7 +168,7 @@ function Schema(
             case SchemaControl.Date:
               return (
                 <Form.Field required={ctrl.required}>
-                  <label>{t(ctrl.label)}</label>
+                  <label className={`${errorFields?.includes(ctrl.field) && 'error-field-schema'}`}>{t(ctrl.label)}</label>
                   <DatePicker
                     isClearable
                     showTimeSelect
@@ -190,7 +191,7 @@ function Schema(
             case SchemaControl.DateTime:
               return (
                 <Form.Field required={ctrl.required}>
-                  <label>{t(ctrl.label)}</label>
+                  <label className={`${errorFields?.includes(ctrl.field) && 'error-field-schema'}`}>{t(ctrl.label)}</label>
                   <DatePicker
                     isClearable
                     showTimeSelect
@@ -213,7 +214,7 @@ function Schema(
             case SchemaControl.UploadIdentity:
               return (
                 <Form.Field required={ctrl.required}>
-                  <label>{t(ctrl.label)}</label>
+                  <label className={`${errorFields?.includes(ctrl.field) && 'error-field-schema'}`}>{t(ctrl.label)}</label>
                   <UploadIdentity
                     value={value[ctrl.field] || []}
                     onChange={(val: any) => {
@@ -225,7 +226,7 @@ function Schema(
             case SchemaControl.MultiLanguage:
               return (
                 <Form.Field required={ctrl.required}>
-                  <label>{t(ctrl.label)}</label>
+                  <label className={`${errorFields?.includes(ctrl.field) && 'error-field-schema'}`}>{t(ctrl.label)}</label>
                   <MultiLanguage
                     value={value[ctrl.field] || []}
                     onChange={(val: any) => {
@@ -237,7 +238,7 @@ function Schema(
             case SchemaControl.Schema:
               return (
                 <div className="w-full float-left p-2 relative" key={index}>
-                  <label>{t(ctrl.label)}</label>
+                  <label className={`${errorFields?.includes(ctrl.field) && 'error-field-schema'}`}>{t(ctrl.label)}</label>
                   <SchemaComponent
                     value={value[ctrl.field] || {}}
                     showError={showError}
@@ -252,14 +253,14 @@ function Schema(
             case SchemaControl.CheckList:
               return (
                 <div className="w-full float-left p-2 relative" key={index}>
-                  <label>{t(ctrl.label)}</label>
+                  <label className={`${errorFields?.includes(ctrl.field) && 'error-field-schema'}`}>{t(ctrl.label)}</label>
                   <p>Checklist</p>
                 </div>
               );
             case SchemaControl.Checkbox:
               return (
                 <Form.Field required={ctrl.required}>
-                  <label>{t(ctrl.label)}</label>
+                  <label className={`${errorFields?.includes(ctrl.field) && 'error-field-schema'}`}>{t(ctrl.label)}</label>
                   <Checkbox
                     checked={value[ctrl.field]}
                     toggle
@@ -272,7 +273,7 @@ function Schema(
             case SchemaControl.Entity:
               return (
                 <Form.Field>
-                  <label>{t(ctrl.label)}</label>
+                  <label className={`${errorFields?.includes(ctrl.field) && 'error-field-schema'}`}>{t(ctrl.label)}</label>
                   <Entity
                     displayField={ctrl.displayField || "name"}
                     disabled={ctrl.disabled}
@@ -289,7 +290,7 @@ function Schema(
             case SchemaControl.Enum:
               return (
                 <Form.Field required={ctrl.required}>
-                  <label>{t(ctrl.label)}</label>
+                  <label className={`${errorFields?.includes(ctrl.field) && 'error-field-schema'}`}>{t(ctrl.label)}</label>
                   <Enum
                     placeholder={ctrl.placeholder}
                     value={value[ctrl.field]}
@@ -304,7 +305,7 @@ function Schema(
             case SchemaControl.Text:
               return (
                 <Form.Field required={ctrl.required}>
-                  <label>{t(ctrl.label)}</label>
+                  <label className={`${errorFields?.includes(ctrl.field) && 'error-field-schema'}`}>{t(ctrl.label)}</label>
                   <p className="text-gray-400 text-sm m-0 font-light">
                     {t(ctrl.description)}
                   </p>
@@ -328,7 +329,7 @@ function Schema(
             case SchemaControl.Number:
               return (
                 <Form.Field required={ctrl.required}>
-                  <label>{t(ctrl.label)}</label>
+                  <label className={`${errorFields?.includes(ctrl.field) && 'error-field-schema'}`}>{t(ctrl.label)}</label>
                   <p className="text-gray-400 text-sm m-0 font-light">
                     {t(ctrl.description)}
                   </p>
@@ -353,7 +354,7 @@ function Schema(
             case SchemaControl.Password:
               return (
                 <Form.Field required={ctrl.required}>
-                  <label>{t(ctrl.label)}</label>
+                  <label className={`${errorFields?.includes(ctrl.field) && 'error-field-schema'}`}>{t(ctrl.label)}</label>
                   <Input
                     placeholder={ctrl.placeholder}
                     fluid

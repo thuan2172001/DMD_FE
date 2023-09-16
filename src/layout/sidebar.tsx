@@ -56,7 +56,7 @@ export default function Sidebar({ showMenu }: { showMenu: boolean }) {
             <Menu.Item
               active={i.url === pathname}
               className="w-full"
-              as={i.children?.length > 0 ? "button" : "a"}
+              as={(i.children?.length > 0 && !i.url) ? "button" : "a"}
               onClick={() => {
                 if (i.children?.length > 0) {
                   let tmp = [...open];
@@ -68,7 +68,7 @@ export default function Sidebar({ showMenu }: { showMenu: boolean }) {
                   setOpen(tmp);
                 }
               }}
-              href={i?.children?.length > 0 ? "" : `#${i.url}`}
+              href={(i.children?.length > 0 && !i.url) ? "" : `#${i.url}`}
             >
               <div className="flex items-center justify-between w-full">
                 <div>

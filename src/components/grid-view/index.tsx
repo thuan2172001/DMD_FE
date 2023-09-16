@@ -32,12 +32,14 @@ import {
   Modal,
   Pagination,
   Table,
+  TextArea,
 } from "semantic-ui-react";
 import FilterForm from "./filter-form";
 import { Link } from "react-router-dom";
 import Tree from "components/tree";
 import { getErrorValue, isInvalid } from "import";
 import { CancelModal } from "modal/cancel-modal";
+import _ from "lodash";
 interface GridProps {
   gridName: string;
   canSelect?: boolean;
@@ -345,17 +347,29 @@ function GridView({
     }
 
     if (where.tracking_id) {
+      let listTrackingId = where.tracking_id.split('\n');
       where = {
-        '$and': {
-          ...where,
-          $or: {
-            tracking_id: where.tracking_id,
-            new_tracking_id: where.tracking_id
-          }
+        ...where,
+        $or: {
+          tracking_id: {
+            $in: listTrackingId
+          },
+          new_tracking_id: {
+            $in: listTrackingId
+          },
         }
       }
-      delete where['$and'].tracking_id
-      delete where['$and'].cancel_status
+      delete where.tracking_id
+      delete where.cancel_status
+    }
+
+    if (where.customer_name) {
+      where = {
+        ...where,
+        customer_name: {
+          $like: `%${where.customer_name}%`
+        }
+      }
     }
 
     Object.keys(where).map((key) => {
@@ -670,8 +684,34 @@ function GridView({
             </div>
           </Card.Header>
           <div className="flex wrap gap-2">
-            {columns.map((column) => {
-              if (['tracking_id', 'name', 'zip', 'city'].includes(column.field))
+            {_.cloneDeep(columns).sort((a, b) => {
+              if (a.field === 'tracking_id') {
+                return -1;
+              }
+              if (b.field === 'tracking_id') {
+                return 1;
+              }
+              return -1;
+            }).map((column) => {
+              if (['tracking_id'].includes(column.field))
+                return (
+                  <div className="">
+                    <div className="mb-1 ml-0.5">{column.label}</div>
+                    <TextArea
+                      className='text-area-filter'
+                      rows={3}
+                      placeholder={column.label}
+                      value={whereFilter?.[column.field] ?? ''}
+                      onChange={(evt, { value }) => {
+                        setWhereFilter({
+                          ...whereFilter,
+                          [column.field]: value
+                        })
+                      }}
+                    />
+                  </div>
+                )
+              if (['customer_name', 'zip', 'city'].includes(column.field))
                 return (
                   <div>
                     <div className="mb-1 ml-0.5">{column.label}</div>

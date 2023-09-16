@@ -30,6 +30,7 @@ function FormView({
   const [submitting, setSubmitting] = useState<boolean>(false);
   const formInfo: FormEntity = dataServices.getFormByName(formName);
   const [loading, setLoading] = useState<boolean>(true);
+  const [errors, setErrors] = useState([]);
 
   let { mode, id } = params;
   const button: IButton = formInfo?.buttons?.find(
@@ -38,6 +39,14 @@ function FormView({
   const [successMessage, setSuccessMessage] = useState<string>(
     t(button?.successMessage)
   );
+
+  useEffect(() => {
+    let errors = getErrorValue(payload, payload.text_note)
+    payload.status = errors.length === 0;
+    payload.errorValue = errors;
+    setErrors(errors)
+  }, [payload])
+
   async function loadData() {
     let postfn = api.post;
     let rs
@@ -78,7 +87,7 @@ function FormView({
     }
     if (payload?.errorValue?.length) {
       await ui.confirm(
-        "There are some unmatch data. Are you sure want to save it ?")
+        `There are some unmatch data (${payload.errorValue.filter((i: any, index: number) => index % 2 === 1).join(', ')}). Are you sure want to save it ?`)
     }
     try {
       setSubmitting(true);
@@ -198,6 +207,7 @@ function FormView({
                 }
                 setPayload(val);
               }}
+              errorFields = {errors}
             />
           </Card.Content>
           {customView !== undefined && <Card.Content content={customView} />}
