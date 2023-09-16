@@ -223,19 +223,33 @@ function GridView({
           "popupName": 'cancel-order'
         })
       }
-      if (gridName === 'canceled-order') {
-        rowButtons.push({
-          "icon": "save",
-          "color": "green",
-          "label": "Approve",
-          "action": "api",
-          "position": "row",
-          "api": "/order/confirm-cancel",
-          "confirmText": "Are you sure want to confirm cancel this order ?",
-          isRender: (item: any) => {
-            return item.cancel_status === CancelStatus.Cancelling;
+      if (gridName === 'canceling-order') {
+        rowButtons.push(
+          {
+            "icon": "cancel",
+            "color": "teal",
+            "label": "Decline",
+            "action": "api",
+            "position": "row",
+            "api": "/order/decline-cancel",
+            "confirmText": "Are you sure want to decline cancel this order ?",
+            isRender: (item: any) => {
+              return item.cancel_status === CancelStatus.Cancelling;
+            }
+          },
+          {
+            "icon": "check",
+            "color": "green",
+            "label": "Approve",
+            "action": "api",
+            "position": "row",
+            "api": "/order/confirm-cancel",
+            "confirmText": "Are you sure want to confirm cancel this order ?",
+            isRender: (item: any) => {
+              return item.cancel_status === CancelStatus.Cancelling;
+            }
           }
-        })
+        )
       }
       cols.push({
         label: "Actions",
