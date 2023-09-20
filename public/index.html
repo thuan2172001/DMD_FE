@@ -5,10 +5,7 @@
     <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#000000" />
-    <meta
-      name="description"
-      content="Web site created using create-react-app"
-    />
+    <meta name="description" content="Web site created using create-react-app" />
     <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.8.0/jszip.js"></script>
@@ -76,31 +73,6 @@
         });
       }
 
-      async function cropPdfCenterToImages(setPercentage, data) {
-        const loadingTask = pdfjsLib.getDocument(data);
-
-        return loadingTask.promise.then(
-          async function (pdfDocument) {
-            const numPages = pdfDocument.numPages;
-            const rs = [];
-            for (let pageNum = 1; pageNum <= numPages; pageNum++) {
-              let data = await processPage(pdfDocument, pageNum);
-              let text = await convertImageToText(data.src);
-              setPercentage((pageNum / numPages) * 100);
-              rs.push({
-                ...data,
-                text,
-              });
-            }
-
-            return rs;
-          },
-          function (reason) {
-            console.error("Error while loading PDF: " + reason);
-          }
-        );
-      }
-
       function convertImageToText(imageBase64) {
         return new Promise((resolve, reject) => {
           Tesseract.recognize(
@@ -118,6 +90,44 @@
               reject(error);
             });
         });
+      }
+
+      async function processPdf(pdfDocument, pageNum, callback) {
+        let data = await processPage(pdfDocument, pageNum);
+        let text = await convertImageToText(data.src);
+        callback({
+          ...data,
+          text,
+        });
+      }
+
+      async function cropPdfCenterToImages(setPercentage, data) {
+        const loadingTask = pdfjsLib.getDocument(data);
+
+        return loadingTask.promise.then(
+          async function (pdfDocument) {
+            const numPages = pdfDocument.numPages;
+            const rs = [];
+            let MAX_PROCESS = 2;
+            for (let pageNum = 1; pageNum <= numPages / MAX_PROCESS; pageNum++) {
+              let resolve = [];
+              for (let i = 1; i <= MAX_PROCESS; i++) {
+                let pageNumProgress = MAX_PROCESS * (pageNum - 1) + i;
+                if (pageNumProgress > numPages) {
+                  continue;
+                }
+                resolve.push(processPdf(pdfDocument, pageNum, (callbackRs) => rs.push(callbackRs)));
+              }
+              await Promise.all(resolve);
+              setPercentage(Math.min(((pageNum * MAX_PROCESS) / numPages) * 100), 100);
+            }
+
+            return rs;
+          },
+          function (reason) {
+            console.error("Error while loading PDF: " + reason);
+          }
+        );
       }
     </script>
   </body>
