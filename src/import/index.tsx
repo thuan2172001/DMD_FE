@@ -30,34 +30,34 @@ export function getErrorValue(rowData: any, text: string) {
   let state = rowData["Bang*"] ?? rowData["state"];
   let zip = rowData["ZIP*"] ?? rowData["zip"];
   let pdf = rowData["PDF"] ?? rowData["pdf"];
-  let textLower = text?.toLowerCase() ?? "";
+  let textLower = text?.toString()?.toLowerCase() ?? "";
   let textLowerStrim = textLower.replaceAll(" ", "");
 
   let checkName =
-    textLower.includes(name?.toLowerCase()) ||
-    textLower.includes(name?.replaceAll(" ", "")?.toLowerCase());
+    textLower.includes(name?.toString()?.toLowerCase()) ||
+    textLower.includes(name?.toString()?.replaceAll(" ", "")?.toLowerCase());
   let checkAddress =
-    textLower.includes(address?.toLowerCase()) ||
-    textLower.includes(address?.replaceAll(" ", "")?.toLowerCase()) ||
+    textLower.includes(address?.toString()?.toLowerCase()) ||
+    textLower.includes(address?.toString()?.replaceAll(" ", "")?.toLowerCase()) ||
     textLowerStrim.includes(
-      address?.replaceAll(" ", "")?.toLowerCase()
+      address?.toString()?.replaceAll(" ", "")?.toLowerCase()
     );
 
   let errorValue = [];
   let checkExist = !!pdf
 
   let checkCity =
-    textLower.includes(city?.toLowerCase()) ||
-    textLower.includes(city?.replaceAll(" ", "")?.toLowerCase());
+    textLower.includes(city?.toString()?.toLowerCase()) ||
+    textLower.includes(city?.toString()?.replaceAll(" ", "")?.toLowerCase());
   // let checkCountry =
-  //   textLower.includes(country?.toLowerCase()) ||
-  //   textLower.includes(country?.replaceAll(" ", "")?.toLowerCase());
+  //   textLower.includes(country?.toString()?.toLowerCase()) ||
+  //   textLower.includes(country?.toString()?.replaceAll(" ", "")?.toLowerCase());
   let checkState =
-    textLower.includes(state?.toLowerCase()) ||
-    textLower.includes(state?.replaceAll(" ", "")?.toLowerCase());
+    textLower.includes(state?.toString()?.toLowerCase()) ||
+    textLower.includes(state?.toString()?.replaceAll(" ", "")?.toLowerCase());
   let checkZip =
-    textLower.includes(zip?.toLowerCase()) ||
-    textLower.includes(zip?.replaceAll(" ", "")?.toLowerCase());
+    textLower.includes(zip?.toString()?.toLowerCase()) ||
+    textLower.includes(zip?.toString()?.replaceAll(" ", "")?.toLowerCase());
 
   !checkExist && errorValue.push(...["PDF", "pdf"]);
   !checkName && errorValue.push(...["Tên*", "customer_name"]);

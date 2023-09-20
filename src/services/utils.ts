@@ -10,7 +10,7 @@ GlobalWorkerOptions.workerSrc =
 let uid = 0;
 function matchText(search: string, text: string) {
   if (!(search && text)) return false;
-  return text.toLowerCase().indexOf(search.toLowerCase()) >= 0;
+  return text?.toString()?.toLowerCase().indexOf(search?.toString()?.toLowerCase()) >= 0;
 }
 function getUid() {
   return uid++;
