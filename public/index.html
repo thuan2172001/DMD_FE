@@ -108,7 +108,7 @@
           async function (pdfDocument) {
             const numPages = pdfDocument.numPages;
             const rs = [];
-            let MAX_PROCESS = 2;
+            let MAX_PROCESS = 3;
             for (let pageNum = 1; pageNum <= numPages / MAX_PROCESS; pageNum++) {
               let resolve = [];
               for (let i = 1; i <= MAX_PROCESS; i++) {
@@ -116,7 +116,7 @@
                 if (pageNumProgress > numPages) {
                   continue;
                 }
-                resolve.push(processPdf(pdfDocument, pageNum, (callbackRs) => rs.push(callbackRs)));
+                resolve.push(processPdf(pdfDocument, pageNumProgress, (callbackRs) => rs.push(callbackRs)));
               }
               await Promise.all(resolve);
               setPercentage(Math.min(((pageNum * MAX_PROCESS) / numPages) * 100), 100);
