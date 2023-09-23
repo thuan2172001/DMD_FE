@@ -82,6 +82,7 @@ export interface EnumEntity {
   value_type: "string" | "number";
 }
 export interface FormEntity {
+  totalGrid: number;
   name: string;
   label: string;
   api: number | string;
@@ -123,6 +124,7 @@ export enum CellDisplay {
   BidItem = "biditem",
   Ticket = "ticket",
   Chain = "chain",
+  CheckBox = "checkbox"
 }
 export interface SearchItem {
   label: string;
@@ -134,7 +136,7 @@ export interface SearchItem {
   gridName: string;
 }
 export interface GridColumn {
-  label: string;
+  label: string | JSX.Element;
   field: string;
   sortField?: string;
   display: CellDisplay;
@@ -225,6 +227,7 @@ export enum SchemaControl {
   decorationpatterns = "decorationpatterns",
   TicketRewardRarity = "ticketrewardrarity",
   PoolIcon = "poolicon",
+  Images = "images"
 }
 
 
@@ -253,6 +256,8 @@ export interface FormControl {
   show?: any;
   default?: any;
   length?: number;
+  grid?: number;
+  className?: string;
 }
 export enum Language {
   English,

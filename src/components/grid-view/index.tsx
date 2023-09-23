@@ -1,10 +1,4 @@
-import {
-  Button as IButton,
-  GridColumn,
-  CellDisplay,
-  GridEntity,
-  CancelStatus,
-} from "interfaces";
+import { Button as IButton, GridColumn, CellDisplay, GridEntity, CancelStatus } from "interfaces";
 import { useState, useEffect, useMemo } from "react";
 import Config from "config";
 import dayjs from "dayjs";
@@ -12,33 +6,15 @@ import dataService from "../../services/data";
 import { useTranslation } from "react-i18next";
 import Lightbox from "react-image-lightbox";
 import qs from "querystring";
-import {
-  Empty,
-  Loading,
-  MultiLanguage,
-  ViewEnum,
-} from "components";
+import { Empty, Loading, MultiLanguage, ViewEnum } from "components";
 import utils from "../../services/utils";
 import ReactJson from "react-json-view";
 import { api, ui } from "services";
-import {
-  Button,
-  Card,
-  Checkbox,
-  Dropdown,
-  Image,
-  Input,
-  Label,
-  Modal,
-  Pagination,
-  Table,
-  TextArea,
-} from "semantic-ui-react";
+import { Button, Card, Checkbox, Dropdown, Image, Input, Label, Modal, Pagination, Table, TextArea } from "semantic-ui-react";
 import FilterForm from "./filter-form";
 import { Link } from "react-router-dom";
 import Tree from "components/tree";
 import { getErrorValue, isInvalid } from "import";
-import { CancelModal } from "modal/cancel-modal";
 import _ from "lodash";
 interface GridProps {
   gridName: string;
@@ -47,6 +23,7 @@ interface GridProps {
   onChangeSelectedItems?: Function;
   onItemSelected?: Function;
   disableButton?: boolean;
+  resetSelectedItems?: Function;
 }
 function getFieldData(obj: any, field: string) {
   let arr = field.split(".");
@@ -69,6 +46,7 @@ function GridView({
   selectedItems,
   onItemSelected,
   disableButton,
+  resetSelectedItems,
 }: GridProps): React.ReactElement {
   const { t } = useTranslation();
   const [data, setData] = useState<any[]>([]);
@@ -79,23 +57,22 @@ function GridView({
   const [json, setJson] = useState<any>(null);
   const [tree, setTree] = useState<any>(null);
   const [language, setLanguage] = useState<any>(null);
-  const [order, setOrder] = useState<[field: string, order: "DESC" | "ASC"]>([
-    "id",
-    "DESC",
-  ]);
+  const [order, setOrder] = useState<[field: string, order: "DESC" | "ASC"]>(["id", "DESC"]);
   const [currentPage, setCurrentPage] = useState<number>(0);
   const [pageSize, setPageSize] = useState<number>(Config.PageSize);
   const [openFilter, setOpenFilter] = useState<boolean>(false);
   const [filter, setFilter] = useState<any>({});
   const [query, setQuery] = useState<any>({});
   const [timestamp, setTimestamp] = useState<number>(0);
-  const [whereFilter, setWhereFilter] = useState<any>({})
-  const [trigger, setTrigger] = useState(false)
+  const [whereFilter, setWhereFilter] = useState<any>({});
+  const [trigger, setTrigger] = useState(false);
   const [popup, setPopup] = useState(null);
+  const [checkedItem, setCheckedItem] = useState([]);
+  const [isSelectAll, setSelectAll] = useState(false);
 
   useEffect(() => {
-    setWhereFilter({})
-  }, [gridName])
+    setWhereFilter({});
+  }, [gridName]);
 
   function getFileName(str: string) {
     if (!str) return str;
@@ -155,9 +132,14 @@ function GridView({
             case CellDisplay.Image:
               if (val) {
                 return (
-                  <div className="cursor-pointer text-[#3c81c2] font-bold" onClick={() => {
-                    setViewImage(val)
-                  }}>View</div>
+                  <div
+                    className="cursor-pointer text-[#3c81c2] font-bold"
+                    onClick={() => {
+                      setViewImage(val);
+                    }}
+                  >
+                    View
+                  </div>
                   // <Image
                   //   className="small-image"
                   //   alt="cell image"
@@ -199,63 +181,58 @@ function GridView({
             case CellDisplay.Date:
               return <span>{dayjs(val).format("YYYY/MM/DD HH:mm:ss")}</span>;
             case CellDisplay.ArrayString:
-              return (
-                <>
-                  {val?.map((i: any, iIndex: number) => (
-                    <Label key={iIndex}>{i}</Label>
-                  ))}
-                </>
-              );
+              return <>{val?.map((i: any, iIndex: number) => <Label key={iIndex}>{i}</Label>)}</>;
             case CellDisplay.Chain:
-              let chain = gridInfo.tokens?.find((el: any) => el?.chainId == val)
-              return chain?.name
+              let chain = gridInfo.tokens?.find((el: any) => el?.chainId == val);
+              return chain?.name;
           }
         },
       };
       cols.push(tmp);
     });
-    const rowButtons = gridInfo?.buttons
-      ? gridInfo?.buttons?.filter((i) => i.position === "row")
-      : [];
+    const rowButtons = gridInfo?.buttons ? gridInfo?.buttons?.filter((i) => i.position === "row") : [];
 
     if (rowButtons?.length > 0 && !disableButton) {
-      if (gridName === 'order') {
+      if (gridName === "order" || gridName === "invalid-order") {
         rowButtons.push({
-          "icon": "cancel",
-          "color": "red",
-          "label": "Cancel",
-          "action": "popup",
-          "position": "row",
-          "popupName": 'cancel-order'
-        })
+          api: "/order/bypass",
+          icon: "check circle",
+          color: "orange",
+          label: "Bypass",
+          action: "api",
+          position: "row",
+          isRender: (item: any) => {
+            return !item.status && !item.bypass;
+          },
+        });
       }
-      if (gridName === 'canceling-order') {
+      if (gridName === "canceling-order") {
         rowButtons.push(
           {
-            "icon": "cancel",
-            "color": "teal",
-            "label": "Decline",
-            "action": "api",
-            "position": "row",
-            "api": "/order/decline-cancel",
-            "confirmText": "Are you sure want to decline cancel this order ?",
+            icon: "cancel",
+            color: "teal",
+            label: "Decline",
+            action: "api",
+            position: "row",
+            api: "/order/decline-cancel",
+            confirmText: "Are you sure want to decline cancel this order ?",
             isRender: (item: any) => {
               return item.cancel_status === CancelStatus.Cancelling;
-            }
+            },
           },
           {
-            "icon": "check",
-            "color": "green",
-            "label": "Approve",
-            "action": "api",
-            "position": "row",
-            "api": "/order/confirm-cancel",
-            "confirmText": "Are you sure want to confirm cancel this order ?",
+            icon: "check",
+            color: "green",
+            label: "Approve",
+            action: "api",
+            position: "row",
+            api: "/order/confirm-cancel",
+            confirmText: "Are you sure want to confirm cancel this order ?",
             isRender: (item: any) => {
               return item.cancel_status === CancelStatus.Cancelling;
-            }
+            },
           }
-        )
+        );
       }
       cols.push({
         label: "Actions",
@@ -266,7 +243,7 @@ function GridView({
         //@ts-ignore
         render: (val, row) => {
           return rowButtons?.map((item, index) => {
-            return renderButton(item, index, row)
+            return renderButton(item, index, row);
           });
         },
       });
@@ -311,13 +288,12 @@ function GridView({
     }
     let where: any = {};
     if (gridInfo?.where) {
-      where = gridInfo.where
+      where = gridInfo.where;
     }
     if (gridInfo?.filter && gridInfo?.filter?.length > 0) {
       gridInfo.filter.forEach((item) => {
         if (!query[item.field]) return;
-        if (item.multiple && !(query[item.field] && query[item.field].length))
-          return;
+        if (item.multiple && !(query[item.field] && query[item.field].length)) return;
         if (query[item.field]) {
           switch (item.type) {
             case "date":
@@ -343,40 +319,40 @@ function GridView({
     }
     where = {
       ...where,
-      ...whereFilter
-    }
+      ...whereFilter,
+    };
 
     if (where.tracking_id) {
-      let listTrackingId = where.tracking_id.split('\n');
+      let listTrackingId = where.tracking_id.split("\n");
       where = {
         ...where,
         $or: {
           tracking_id: {
-            $in: listTrackingId
+            $in: listTrackingId,
           },
           new_tracking_id: {
-            $in: listTrackingId
+            $in: listTrackingId,
           },
-        }
-      }
-      delete where.tracking_id
-      delete where.cancel_status
+        },
+      };
+      delete where.tracking_id;
+      delete where.cancel_status;
     }
 
     if (where.customer_name) {
       where = {
         ...where,
         customer_name: {
-          $like: `%${where.customer_name}%`
-        }
-      }
+          $like: `%${where.customer_name}%`,
+        },
+      };
     }
 
     Object.keys(where).map((key) => {
-      if (where[key] === '') {
+      if (where[key] === "") {
         delete where[key];
       }
-    })
+    });
 
     fetch({
       offset: currentPage * pageSize,
@@ -446,8 +422,8 @@ function GridView({
               if (btn.popupName) {
                 setPopup({
                   popupName: btn.popupName,
-                  item
-                })
+                  item,
+                });
               }
             }}
           />
@@ -510,10 +486,10 @@ function GridView({
             key={index}
             primary
             onClick={async () => {
-              const HOST = window.location.origin
+              const HOST = window.location.origin;
               // let base64 = await utils.generateBarcodeToBase64(`${HOST}/#/tracking/${item.tracking_id}`)
-              let base64 = await utils.generateQRCodeToBase64(`${HOST}/#/tracking/${item.tracking_id}`)
-              const a: any = document.createElement('a');
+              let base64 = await utils.generateQRCodeToBase64(`${HOST}/#/tracking/${item.tracking_id}`);
+              const a: any = document.createElement("a");
               a.href = base64;
               a.download = `${item.tracking_id}`;
               document.body.appendChild(a);
@@ -525,33 +501,50 @@ function GridView({
     }
   }
   function isSelect(item: any): boolean {
-    for (var i = 0; i < selectedItems.length; i++) {
-      if (selectedItems[i]?.id === item.id) {
-        return true;
-      }
-    }
-    return false;
+    return selectedItems.includes(item) || isSelectAll;
   }
   function onItemSelect(item: any): void {
     onItemSelected(item);
   }
 
   async function exportData() {
-    let labels = columns?.map((i: any) => i.label);
-    let keys = columns?.map((i: any) => i.field);
+    let res = await api.post("/operation/get-download-data", {
+      gridName,
+      isDownloadAll: isSelectAll,
+      ids: selectedItems,
+    });
 
-    let csvContent = "data:text/csv;charset=utf-8," + labels.join(",") + "\n";
-    data?.map((data: any) => {
-      let t = keys.map((key: string) => data[key]).join(',') + '\n';
-      csvContent += t;
-    })
+    if (!isSelectAll) {
+      res = selectedItems
+        .map((id) => {
+          let item = res.find((i: any) => i.id === id);
+          return item;
+        })
+        .filter((i) => !!i);
+    }
 
-    var encodedUri = encodeURI(csvContent);
-    var link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "data.csv");
-    document.body.appendChild(link); // Required for FF
-    link.click(); // This will download the data file named "my_data.csv".
+    let keys = columns?.map((i: any) => i.field)?.filter((i) => i !== "pdf");
+    await utils.generateExcelWithoutLabel(keys, res, "data");
+  }
+
+  async function exportLabel() {
+    let res = await api.post("/operation/get-download-data", {
+      gridName,
+      isDownloadAll: isSelectAll,
+      ids: selectedItems,
+    });
+
+    if (!isSelectAll) {
+      res = selectedItems
+        .map((id) => {
+          let item = res.find((i: any) => i.id === id);
+          return item;
+        })
+        .filter((i) => !!i);
+    }
+
+    let labelImages = res.map((data: any) => data.pdf).filter((i: any) => !!i);
+    await utils.generatePDF(labelImages, "data");
   }
 
   return (
@@ -566,7 +559,7 @@ function GridView({
       >
         <Modal.Header>Tree view</Modal.Header>
         <Modal.Content>
-          <Tree value={tree} onChange={() => { }} viewOnly />
+          <Tree value={tree} onChange={() => {}} viewOnly />
         </Modal.Content>
       </Modal>
       <Modal
@@ -578,7 +571,7 @@ function GridView({
       >
         <Modal.Header>Language detail</Modal.Header>
         <Modal.Content>
-          <MultiLanguage value={language} onChange={() => { }} viewOnly />
+          <MultiLanguage value={language} onChange={() => {}} viewOnly />
         </Modal.Content>
       </Modal>
       <Modal
@@ -589,13 +582,7 @@ function GridView({
         closeIcon
       >
         <Modal.Content>
-          <ReactJson
-            src={json}
-            displayDataTypes={false}
-            displayObjectSize={false}
-            enableClipboard={false}
-            name="input"
-          />
+          <ReactJson src={json} displayDataTypes={false} displayObjectSize={false} enableClipboard={false} name="input" />
         </Modal.Content>
       </Modal>
       {viewImage && (
@@ -623,31 +610,18 @@ function GridView({
         </Modal.Content>
       </Modal>
 
-      <CancelModal
-        isOpen={popup?.popupName === 'cancel-order'}
-        item={popup?.item}
-        close={() => {
-          setPopup(null)
-        }}
-      />
-
       <Card fluid>
         <Card.Content>
           <Card.Header>
             <div className="flex justify-between items-center">
               <p style={{ margin: 0 }}>
-                <span>{t(gridInfo.label)}</span>{" "}
-                <span className="text-sm text-gray-400">({total})</span>
+                <span>{t(gridInfo.label)}</span> <span className="text-sm text-gray-400">({total})</span>
               </p>
               <div>
                 {gridInfo.buttons
                   ?.filter((i) => i.position === "top")
                   .map((button, index) => {
-                    return renderButton(
-                      button,
-                      index,
-                      button.embedData ?? null
-                    );
+                    return renderButton(button, index, button.embedData ?? null);
                   })}
                 {gridInfo.filter?.length > 0 && (
                   <Button
@@ -665,82 +639,83 @@ function GridView({
                 <Button
                   color="blue"
                   icon="search"
-                  content={t('Search')}
+                  content={t("Search")}
                   labelPosition="left"
                   loading={loading}
                   onClick={() => {
-                    setTrigger(!trigger)
-                    setCurrentPage(0)
+                    setTrigger(!trigger);
+                    setCurrentPage(0);
                   }}
                 />
-                <Button
-                  color="green"
-                  icon="download"
-                  content={t('Export')}
-                  labelPosition="left"
-                  onClick={() => exportData()}
-                />
+                <Button color="green" icon="download" content={t("Export MetaData")} labelPosition="left" onClick={() => exportData()} />
+                <Button color="green" icon="download" content={t("Export Label")} labelPosition="left" onClick={() => exportLabel()} />
               </div>
             </div>
           </Card.Header>
           <div className="flex wrap gap-2">
-            {_.cloneDeep(columns).sort((a, b) => {
-              if (a.field === 'tracking_id') {
+            {_.cloneDeep(columns)
+              .sort((a, b) => {
+                if (a.field === "tracking_id") {
+                  return -1;
+                }
+                if (b.field === "tracking_id") {
+                  return 1;
+                }
                 return -1;
-              }
-              if (b.field === 'tracking_id') {
-                return 1;
-              }
-              return -1;
-            }).map((column) => {
-              if (['tracking_id'].includes(column.field))
-                return (
-                  <div className="">
-                    <div className="mb-1 ml-0.5">{column.label}</div>
-                    <TextArea
-                      className='text-area-filter'
-                      rows={3}
-                      placeholder={column.label}
-                      value={whereFilter?.[column.field] ?? ''}
-                      onChange={(evt, { value }) => {
-                        setWhereFilter({
-                          ...whereFilter,
-                          [column.field]: value
-                        })
-                      }}
-                    />
-                  </div>
-                )
-              if (['customer_name', 'zip', 'city'].includes(column.field))
-                return (
-                  <div>
-                    <div className="mb-1 ml-0.5">{column.label}</div>
-                    <Input
-                      placeholder={column.label}
-                      value={whereFilter?.[column.field] ?? ''}
-                      onChange={(evt, { value }) => {
-                        setWhereFilter({
-                          ...whereFilter,
-                          [column.field]: value
-                        })
-                      }}
-                    />
-                  </div>
-                )
-            })}
+              })
+              .map((column) => {
+                if (["tracking_id"].includes(column.field))
+                  return (
+                    <div className="">
+                      <div className="mb-1 ml-0.5">{column.label}</div>
+                      <TextArea
+                        className="text-area-filter"
+                        rows={3}
+                        placeholder={column.label}
+                        value={whereFilter?.[column.field] ?? ""}
+                        onChange={(evt, { value }) => {
+                          setWhereFilter({
+                            ...whereFilter,
+                            [column.field]: value,
+                          });
+                        }}
+                      />
+                    </div>
+                  );
+                if (["customer_name", "zip", "city"].includes(column.field))
+                  return (
+                    <div>
+                      <div className="mb-1 ml-0.5">{column.label}</div>
+                      <Input
+                        placeholder={column.label}
+                        value={whereFilter?.[column.field] ?? ""}
+                        onChange={(evt, { value }) => {
+                          setWhereFilter({
+                            ...whereFilter,
+                            [column.field]: value,
+                          });
+                        }}
+                      />
+                    </div>
+                  );
+              })}
           </div>
         </Card.Content>
         <Card.Content>
-          <div
-            className="block w-full overflow-x-auto relative"
-            style={{ height: "calc(100vh - 320px)" }}
-          >
+          <div className="block w-full overflow-x-auto relative" style={{ height: "calc(100vh - 320px)" }}>
             <Table sortable>
               <Table.Header>
                 <Table.Row>
                   {canSelect && (
                     <Table.HeaderCell className="sticky top-0 px-3 text-white align-middle border border-solid border-blueGray-100 py-2 text-base border-l-0 border-r-0 border-t-0 whitespace-nowrap font-normal text-left cursor-pointer z-20 bg-gradient-to-t from-primary-400 to-primary-600">
-                      {t("Select")}
+                      <Checkbox
+                        defaultChecked={isSelectAll}
+                        checked={isSelectAll}
+                        onChange={(e, value) => {
+                          setSelectAll(value.checked);
+                          resetSelectedItems();
+                        }}
+                      />
                     </Table.HeaderCell>
                   )}
                   {columns.map((col, index) => {
@@ -753,8 +728,7 @@ function GridView({
                       <Table.HeaderCell
                         key={index}
                         sorted={
-                          order[0] === (col.sortField || col.field) &&
-                            col.sorter
+                          order[0] === (col.sortField || col.field) && col.sorter
                             ? order[1] === "DESC"
                               ? "descending"
                               : "ascending"
@@ -763,9 +737,7 @@ function GridView({
                         onClick={() => {
                           if (!col.sorter) return;
                           let f = col.sortField || col.field;
-                          let s: [field: string, order: "DESC" | "ASC"] = [
-                            ...order,
-                          ];
+                          let s: [field: string, order: "DESC" | "ASC"] = [...order];
                           if (s[0] === f) {
                             s[1] = s[1] === "DESC" ? "ASC" : "DESC";
                           } else {
@@ -776,7 +748,7 @@ function GridView({
                         }}
                         className={className}
                       >
-                        {t(col.label)}
+                        {typeof col.label === "string" ? t(col.label) : col.label}
                       </Table.HeaderCell>
                     );
                   })}
@@ -784,32 +756,28 @@ function GridView({
               </Table.Header>
               <Table.Body>
                 {data.map((dt, dtIndex) => {
-                  let errors: any[] = []
+                  let errors: any[] = [];
 
-                  if (['invalid-order'].includes(gridName)) {
-                    errors = getErrorValue(dt, dt.text_note)
+                  if (["invalid-order", "valid-order", "order"].includes(gridName)) {
+                    errors = getErrorValue(dt, dt.text_note);
                   }
 
                   return (
-                    <Table.Row
-                      key={dtIndex}
-                      className={`hover:bg-primary-100 ${canSelect && "cursor-pointer"}`}
-                    >
+                    <Table.Row key={dtIndex} className={`hover:bg-primary-100 ${canSelect && "cursor-pointer"}`}>
                       {canSelect && (
                         <Table.Cell className="text-center">
                           <Checkbox
-                            checked={isSelect(dt)}
-                            toggle
+                            checked={isSelect(dt.id)}
+                            disabled={isSelectAll}
                             onChange={(evt, { checked }) => {
                               if (!canSelect) return;
-                              onItemSelect(dt);
+                              onItemSelect(dt.id);
                             }}
                           />
                         </Table.Cell>
                       )}
                       {columns.map((col, colIndex) => {
-                        let className =
-                          "border-t-0 px-6 align-middle border-l-0 border-r-0 text-sm whitespace-nowrap p-2 text-left";
+                        let className = "border-t-0 px-6 align-middle border-l-0 border-r-0 text-sm whitespace-nowrap p-2 text-left";
                         if (col.fixed === "right") {
                           className += " sticky right-0 bg-white";
                         }
@@ -819,14 +787,14 @@ function GridView({
                               //@ts-ignore
                               col.render
                                 ? //@ts-ignore
-                                col.render(getFieldData(dt, col.field), dt)
+                                  col.render(getFieldData(dt, col.field), dt)
                                 : getFieldData(dt, col.field)
                             }
                           </Table.Cell>
                         );
                       })}
                     </Table.Row>
-                  )
+                  );
                 })}
               </Table.Body>
             </Table>

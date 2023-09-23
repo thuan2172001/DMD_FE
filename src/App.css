@@ -174,3 +174,27 @@ textarea:focus {
 .error-field-schema {
   color: red !important;
 }
+
+.grid-form {
+  display: grid !important;
+  gap: 10px;
+}
+
+.pdf-large {
+  width: 400px !important;
+}
+
+.pdf-large img {
+  width: 400px !important;
+}
+
+.pdf-small-container {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.pdf-small-container img {
+  width: 42px;
+  cursor: pointer;
+}

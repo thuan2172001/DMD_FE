@@ -6,8 +6,11 @@ import Loading from "./loading";
 import dataServices from "../services/data";
 import Schema from "./schema";
 import { api, ui } from "services";
-import { Button, Card } from "semantic-ui-react";
+import { Button, Card, Icon } from "semantic-ui-react";
 import { getErrorValue } from "import";
+import _ from "lodash";
+import { CancelModal } from "modal/cancel-modal";
+import { useNavigate } from "react-router-dom";
 interface FormViewProps {
   formName: string;
   params: { mode: string; id?: any; embed?: any };
@@ -16,40 +19,45 @@ interface FormViewProps {
   onChange?: Function;
   customView?: any;
 }
-function FormView({
-  formName,
-  params,
-  onCreated,
-  onChange,
-  customView,
-}: FormViewProps): React.ReactElement {
+function FormView({ formName, params, onCreated, onChange, customView }: FormViewProps): React.ReactElement {
   const { t } = useTranslation();
   const mainSchemaRef = useRef();
   const [submited, setSubmited] = useState<boolean>(false);
   const [payload, setPayload] = useState<any>(params.embed || {});
   const [submitting, setSubmitting] = useState<boolean>(false);
-  const formInfo: FormEntity = dataServices.getFormByName(formName);
+  const [formInfo, setFormInfo] = useState<FormEntity>(dataServices.getFormByName(formName));
   const [loading, setLoading] = useState<boolean>(true);
   const [errors, setErrors] = useState([]);
-
   let { mode, id } = params;
-  const button: IButton = formInfo?.buttons?.find(
-    (i) => i.pageMode === params.mode
-  );
-  const [successMessage, setSuccessMessage] = useState<string>(
-    t(button?.successMessage)
-  );
+  const [popup, setPopup] = useState(null);
+  const nav = useNavigate();
 
   useEffect(() => {
-    let errors = getErrorValue(payload, payload.text_note)
+    // if (formName === "edit-order") {
+    //   let deepClone = _.cloneDeep(formInfo);
+    //   deepClone.buttons.push({
+    //     icon: "cancel",
+    //     color: "red",
+    //     label: "Cancel",
+    //     action: "popup",
+    //     position: "row",
+    //     pageMode: "edit",
+    //     popupName: "cancel-order",
+    //   });
+    //   setFormInfo(deepClone);
+    // }
+  }, [formName]);
+
+  useEffect(() => {
+    let errors = getErrorValue(payload, payload.text_note);
     payload.status = errors.length === 0;
     payload.errorValue = errors;
-    setErrors(errors)
-  }, [payload])
+    setErrors(errors);
+  }, [payload]);
 
   async function loadData() {
     let postfn = api.post;
-    let rs
+    let rs;
     rs = await postfn(`${formInfo.api}`, {
       where: { id },
       offset: 0,
@@ -80,15 +88,20 @@ function FormView({
     if (btn.confirmText) {
       await ui.confirm(t(btn.confirmText));
     }
-    if (formName === 'edit-order') {
-      let errors = getErrorValue(payload, payload.text_note)
+    if (formName === "edit-order") {
+      let errors = getErrorValue(payload, payload.text_note);
       payload.status = errors.length === 0;
       payload.errorValue = errors;
     }
     if (payload?.errorValue?.length) {
       await ui.confirm(
-        `There are some unmatch data (${payload.errorValue.filter((i: any, index: number) => index % 2 === 1).join(', ')}). Are you sure want to save it ?`)
+        `There are some unmatch data (${payload.errorValue
+          .filter((i: any, index: number) => index % 2 === 1)
+          .join(", ")}). Are you sure want to save it ?`
+      );
     }
+    let isReturnForm = ["edit-order"].includes(formName);
+
     try {
       setSubmitting(true);
       let postfn = api.post;
@@ -96,12 +109,17 @@ function FormView({
       if (onCreated) {
         onCreated(rs);
       }
+      if (isReturnForm && rs.id) {
+        setPayload(rs);
+      }
       ui.alert(t(btn.successMessage || "Success"));
     } catch (error: any) {
       ui.alert(t(btn.failMessage || error.message || "Fail"));
     } finally {
       if (!btn.disableReload && params.mode === "edit") {
-        loadData();
+        if (!isReturnForm) {
+          loadData();
+        }
       }
       setSubmitting(false);
     }
@@ -122,6 +140,25 @@ function FormView({
               onButtonClick(btn);
             }}
             content={t(btn.label)}
+          />
+        );
+      case "popup":
+        return (
+          <Button
+            //@ts-ignore
+            color={btn.color || "blue"}
+            className="mr-1"
+            icon={btn.icon}
+            content={t(btn.label)}
+            key={index}
+            onClick={async () => {
+              if (btn.popupName) {
+                setPopup({
+                  popupName: btn.popupName,
+                  item: payload,
+                });
+              }
+            }}
           />
         );
       case "redirect":
@@ -186,6 +223,15 @@ function FormView({
               <div className="flex justify-between items-center">
                 <p style={{ margin: 0 }}>{t(formInfo.label || "Unknown")}</p>
                 <div>
+                  <Button
+                    color="teal"
+                    onClick={() => {
+                      nav(-1);
+                    }}
+                  >
+                    <Icon name="undo" />
+                    Back
+                  </Button>
                   {formInfo.buttons
                     .filter((i) => i.pageMode === params.mode)
                     .map((btn: IButton, index: number) => {
@@ -207,10 +253,19 @@ function FormView({
                 }
                 setPayload(val);
               }}
-              errorFields = {errors}
+              errorFields={errors}
+              totalGrid={formInfo.totalGrid ?? 1}
             />
           </Card.Content>
           {customView !== undefined && <Card.Content content={customView} />}
+
+          <CancelModal
+            isOpen={popup?.popupName === "cancel-order"}
+            item={popup?.item}
+            close={() => {
+              setPopup(null);
+            }}
+          />
         </Card>
       )}
     </div>

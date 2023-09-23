@@ -1,7 +1,7 @@
 import { Empty } from "components";
 import ImagePopup from "components/image";
 import _ from "lodash";
-import { useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button, Card, Form, Icon, Input, Message, Progress, Table } from "semantic-ui-react";
 import { api, utils } from "services";
@@ -12,43 +12,34 @@ export function isInvalid(errorValue: string[], header: string) {
   return status;
 }
 
+export const checkErrorString = (fullText: string, searchText: string) => {
+  return fullText.includes(utils.formatString(searchText)) || fullText.includes(utils.formatString(searchText, true));
+};
+
 export function getErrorValue(rowData: any, text: string) {
   let tracking = rowData["Tracking"] ?? rowData["tracking_id"];
   let name = rowData["Tên*"] ?? rowData["customer_name"];
   let address = rowData["Địa chỉ*"] ?? rowData["address"];
   let city = rowData["Thành phố*"] ?? rowData["city"];
-  // let country = rowData["Nước*"] ?? rowData["country"];
   let state = rowData["Bang*"] ?? rowData["state"];
   let zip = rowData["ZIP*"] ?? rowData["zip"];
   let pdf = rowData["PDF"] ?? rowData["pdf"];
-  let textLower = text?.toString()?.toLowerCase() ?? "";
-  let textLowerStrim = textLower.replaceAll(" ", "");
-
-  let checkName =
-    textLower.includes(name?.toString()?.toLowerCase()) || textLower.includes(name?.toString()?.replaceAll(" ", "")?.toLowerCase());
-  let checkAddress =
-    textLower.includes(address?.toString()?.toLowerCase()) ||
-    textLower.includes(address?.toString()?.replaceAll(" ", "")?.toLowerCase()) ||
-    textLowerStrim.includes(address?.toString()?.replaceAll(" ", "")?.toLowerCase());
-
   let errorValue = [];
   let checkExist = !!pdf;
 
-  let checkCity =
-    textLower.includes(city?.toString()?.toLowerCase()) || textLower.includes(city?.toString()?.replaceAll(" ", "")?.toLowerCase());
-  // let checkCountry =
-  //   textLower.includes(country?.toString()?.toLowerCase()) ||
-  //   textLower.includes(country?.toString()?.replaceAll(" ", "")?.toLowerCase());
-  let checkState =
-    textLower.includes(state?.toString()?.toLowerCase()) || textLower.includes(state?.toString()?.replaceAll(" ", "")?.toLowerCase());
-  let checkZip =
-    textLower.includes(zip?.toString()?.toLowerCase()) || textLower.includes(zip?.toString()?.replaceAll(" ", "")?.toLowerCase());
+  let textLower = utils.formatString(text);
+  let textLowerStrim = utils.formatString(text, true);
+
+  let checkName = checkErrorString(textLower, name);
+  let checkAddress = checkErrorString(textLower, address) || textLowerStrim.includes(utils.formatString(address, true));
+  let checkCity = checkErrorString(textLower, city);
+  let checkState = checkErrorString(textLower, state);
+  let checkZip = checkErrorString(textLower, zip);
 
   !checkExist && errorValue.push(...["PDF", "pdf"]);
   !checkName && errorValue.push(...["Tên*", "customer_name"]);
   !checkAddress && errorValue.push(...["Địa chỉ*", "address"]);
   !checkCity && errorValue.push(...["Thành phố*", "city"]);
-  // !checkCountry && errorValue.push(...["Nước*", "country"]);
   !checkState && errorValue.push(...["Bang*", "state"]);
   !checkZip && errorValue.push(...["ZIP*", "zip"]);
 
@@ -74,6 +65,7 @@ export default function ImportData() {
 
   const [excelName, setExcelName] = useState("");
   const [pdfName, setPdfName] = useState("");
+  const [statistics, setStatistics] = useState({ total: 0, invalid: 0, error: 0 });
 
   const excel = useRef<any>();
   const pdf = useRef<any>();
@@ -127,8 +119,6 @@ export default function ImportData() {
           };
 
           let errorValue = getErrorValue(formatData, pdfData?.text);
-          console.log({ errorValue, length: errorValue.length, status: errorValue.length === 0 });
-
           formatData = {
             ...formatData,
             errorValue,
@@ -163,7 +153,9 @@ export default function ImportData() {
         });
 
         setTableHeader(tableHeader);
-        setTableCell([...tableCell, ...missingTableCell]);
+
+        let cellData = [...tableCell, ...missingTableCell];
+        setTableCell(cellData);
       }
     } catch (err) {
       console.log({ err });
@@ -185,9 +177,13 @@ export default function ImportData() {
       if (requireCf.length) {
         await ui.confirm("There are some unmatch data. Are you sure want to save it ?");
       }
+
+      let insertableData = tableCellData.filter((data) => !data.errorValue.includes("PDF") && !data.errorValue.includes("Tracking"));
+      let uninsertableData = tableCellData.filter((data) => data.errorValue.includes("PDF") || data.errorValue.includes("Tracking"));
+
       let payload: any = {
         title: data["title"],
-        data: tableCellData.map((dt) => {
+        data: insertableData.map((dt) => {
           return {
             tracking_id: dt["Tracking"],
             customer_name: dt["Tên*"],
@@ -203,15 +199,35 @@ export default function ImportData() {
           };
         }),
       };
+
       await api.insertOrder(payload);
       ui.alert(t("Insert Success"));
-      setTableCell([]);
+      setTableCell(uninsertableData);
     } catch (error: any) {
       ui.alert(t(error.message));
     } finally {
       setLoading(false);
+      setError('')
     }
   }
+
+  async function download() {
+    let uninsertableData = tableCellData.filter((data) => data.errorValue.includes("PDF") || data.errorValue.includes("Tracking"));
+    utils.generateExcelWithImages(tableHeaderData, uninsertableData, 'error_data')
+  }
+
+  useMemo(() => {
+    let total = tableCellData.length;
+    let invalid = tableCellData.filter(
+      (data) => (!data.Status && data.errorValue.includes("Tracking")) || data.errorValue.includes("PDF")
+    ).length;
+    let error = tableCellData.filter((data) => !data.Status).length - invalid;
+    setStatistics({
+      total,
+      invalid,
+      error,
+    });
+  }, [tableCellData]);
 
   return (
     <div className="w-full h-full flex items-center justify-center">
@@ -365,9 +381,9 @@ export default function ImportData() {
                       </Button>
                       {tableCellData?.length ? (
                         <Button
-                          onClick={(e) => {
+                          onClick={async (e) => {
                             e.preventDefault();
-                            onSubmit();
+                            await onSubmit();
                           }}
                           fluid
                           color="green"
@@ -375,6 +391,21 @@ export default function ImportData() {
                         >
                           <Icon name="save"></Icon>
                           Save data
+                        </Button>
+                      ) : (
+                        <></>
+                      )}
+                      {tableCellData?.length ? (
+                        <Button
+                          onClick={async (e) => {
+                            e.preventDefault();
+                            await download();
+                          }}
+                          fluid
+                          color="teal"
+                        >
+                          <Icon name="download"></Icon>
+                          <span className="text-xs">Download error</span>
                         </Button>
                       ) : (
                         <></>
@@ -388,6 +419,11 @@ export default function ImportData() {
         </Card>
 
         <Card.Content>
+          {!loading && (
+            <div>
+              Total: {statistics.total} - Invalid: {statistics.invalid} - Error: {statistics.error}
+            </div>
+          )}
           <div className="block w-full overflow-x-auto relative" style={{ height: "calc(100vh - 320px)" }}>
             <Table celled sortable>
               <Table.Header>
@@ -399,7 +435,7 @@ export default function ImportData() {
                       className += " right-0";
                     }
                     return (
-                      <Table.HeaderCell key={index} onClick={() => {}} className={className}>
+                      <Table.HeaderCell key={`header-${index}`} onClick={() => {}} className={className}>
                         {t(col)}
                       </Table.HeaderCell>
                     );
@@ -409,20 +445,19 @@ export default function ImportData() {
               <Table.Body>
                 {tableCellData.map((col, dataidx) => {
                   let errorValue = col.errorValue;
-
                   return (
-                    <Table.Row>
+                    <Table.Row key={`${col["Tracking"]}-${col["Page"]}-${dataidx}`}>
                       {tableHeaderData.map((header, idx) => {
                         if (header === "PDF") {
                           return (
-                            <Table.Cell key={header + idx} className={`${isInvalid(errorValue, header) && "fa alert-field"}`}>
+                            <Table.Cell key={"data" + header + idx} className={`${isInvalid(errorValue, header) && "fa alert-field"}`}>
                               {col[header] ? <ImagePopup imageUrl={col[header]} /> : <></>}
                             </Table.Cell>
                           );
                         }
                         if (header === "Status") {
                           return (
-                            <Table.Cell key={header + idx}>
+                            <Table.Cell key={"data" + header + idx}>
                               {col[header] ? (
                                 <div className="font-bold text-[#21BA45]">Valid data</div>
                               ) : (
@@ -443,6 +478,7 @@ export default function ImportData() {
                             idx={idx}
                             col={col}
                             header={header}
+                            key={"data" + header + idx}
                             onChange={(value: string) => {
                               let deepClone = _.cloneDeep(tableCellData);
                               col[header] = value;

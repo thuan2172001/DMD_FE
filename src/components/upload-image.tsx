@@ -3,13 +3,7 @@ import { useDropzone } from "react-dropzone";
 import { Image } from "semantic-ui-react";
 import { api, ui } from "services";
 
-export default function UploadImage({
-  value,
-  onChange,
-}: {
-  value: string;
-  onChange: Function;
-}) {
+export default function UploadImage({ value, onChange, className = "" }: { value: string; onChange: Function; className?: string }) {
   const [loading, setLoading] = useState(false);
 
   const onDrop = (acceptedFiles: any[]) => {
@@ -23,6 +17,7 @@ export default function UploadImage({
       let reader = new FileReader();
       reader.readAsDataURL(image);
       reader.onload = function () {
+        console.log({reader: reader.result})
         onChange(reader.result);
       };
     } catch (error) {
@@ -30,14 +25,9 @@ export default function UploadImage({
     }
   }
   return (
-    <div className="relative w-36 cursor-pointer" {...getRootProps()}>
+    <div className={`${className} relative w-36 cursor-pointer`} {...getRootProps()}>
       <input {...getInputProps()} />
-      <Image
-        rounded
-        alt="avatar"
-        src={value || "/default-avatar.png"}
-        size="small"
-      />
+      <Image rounded alt="avatar" src={value || "/default-avatar.png"} size="small" />
       <i className="fas fa-edit text-primary-700 absolute bottom-0 right-0 text-xl" />
     </div>
   );
