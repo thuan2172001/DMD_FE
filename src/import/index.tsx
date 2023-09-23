@@ -88,12 +88,12 @@ export default function ImportData() {
         let excelData = await utils.handleFileExcel(selectedFileExcel);
         let pdfData = await utils.cropPdfCenterToImages(setPercentage, selectedFilePdf);
 
+        let existedTrackingId: string[] = [];
         let pdfFormat: any = {};
 
         pdfData.map((pdfDataText) => {
           let arr = pdfDataText.text.split("\n");
           let key = (pdfDataText.pageKey ?? arr[arr.length - 3]).replaceAll(" ", "");
-          console.log({ pageKey: pdfDataText.pageKey, arr: arr[arr.length - 3] });
           let metadata = pdfDataText;
           pdfFormat[key] = metadata;
         });
@@ -119,6 +119,12 @@ export default function ImportData() {
           };
 
           let errorValue = getErrorValue(formatData, pdfData?.text);
+          if (existedTrackingId.includes(tracking)) {
+            errorValue.push('Duplicate')
+          }
+          if (tracking) {
+            existedTrackingId.push(tracking)
+          }
           formatData = {
             ...formatData,
             errorValue,
@@ -467,7 +473,7 @@ export default function ImportData() {
                                     console.log(col.text);
                                   }}
                                 >
-                                  Invalid data
+                                  {errorValue.includes('Duplicate') ? 'Duplicate' : 'Invalid data'}
                                 </div>
                               )}
                             </Table.Cell>

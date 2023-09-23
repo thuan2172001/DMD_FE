@@ -252,6 +252,7 @@ const generateExcelWithImages = async (headers: string[], data: any[], fileName:
     const row = worksheet.addRow(
       headers.map((header) => {
         if (header === "Status") {
+          if (item?.errorValue?.includes('Duplicate')) return 'Duplicate'
           return item[header] ? "Valid" : "Invalid";
         }
         if (header === "PDF" || header === "pdf") {
