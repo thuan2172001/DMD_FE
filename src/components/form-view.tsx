@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Button as IButton, FormEntity } from "interfaces";
+import { AlertType, Button as IButton, FormEntity } from "interfaces";
 import qs from "querystring";
 import { useTranslation } from "react-i18next";
 import Loading from "./loading";
@@ -80,7 +80,58 @@ function FormView({ formName, params, onCreated, onChange, customView }: FormVie
     //@ts-ignore
     return mainSchemaRef.current.validate(input);
   }
+
+  async function handleReplace(btn: IButton) {
+    setSubmitting(true);
+
+    try {
+      // @ts-ignore
+      let dataRes: { page: number; pageKey: string; src: string; text: string }[] = await window.cropPdfCenterToImages((percentage) => {
+        if (percentage == "100") {
+          setSubmitting(false);
+        }
+      }, payload.pdf);
+
+      let pdf = dataRes.find((pdfDataText) => {
+        let arr = pdfDataText.text.split("\n");
+        let key = (pdfDataText.pageKey ?? arr[arr.length - 3]).replaceAll(" ", "");
+        return key === payload.tracking_id;
+      });
+
+      if (!pdf) {
+        alert("Label not found !");
+        return;
+      }
+
+      let errors = getErrorValue(payload, pdf.text);
+
+      let payloadBody = {
+        ...payload,
+        pdf: pdf.src,
+        page: pdf.page,
+        status: errors.length === 0,
+        text_note: pdf.text,
+      };
+
+      let rs = await api.post("/order/request-replace", {
+        ...payloadBody,
+      });
+
+      setPayload(rs)
+      ui.alert("Success", AlertType.Success);
+    } catch (err) {
+      ui.alert("Failed", AlertType.Danger);
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
   async function onButtonClick(btn: IButton) {
+    if (btn.api === "/order/request-replace") {
+      await handleReplace(btn);
+      return;
+    }
+
     setSubmited(true);
     if (!validate(payload)) {
       return;

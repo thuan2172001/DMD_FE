@@ -252,7 +252,7 @@ const generateExcelWithImages = async (headers: string[], data: any[], fileName:
     const row = worksheet.addRow(
       headers.map((header) => {
         if (header === "Status") {
-          if (item?.errorValue?.includes('Duplicate')) return 'Duplicate'
+          if (item?.errorValue?.includes("Duplicate")) return "Duplicate";
           return item[header] ? "Valid" : "Invalid";
         }
         if (header === "PDF" || header === "pdf") {
@@ -323,7 +323,8 @@ const generateExcelWithoutLabel = async (headers: string[], data: any[], fileNam
 
 // Function to convert base64 image to Uint8Array
 function base64ToUint8Array(base64: string) {
-  const binaryString = window.atob(base64.replace(/^data:image\/(png|jpeg|jpg);base64,/, ""));
+  let dataFormat = base64.replace(/^data:image\/(png|jpeg|jpg);base64,/, "").replace(/^data:application\/(pdf);base64,/, "");
+  let binaryString = window.atob(dataFormat);
   const length = binaryString.length;
   const uint8Array = new Uint8Array(length);
   for (let i = 0; i < length; i++) {
@@ -375,5 +376,6 @@ const utils = {
   generateExcelWithImages,
   generateExcelWithoutLabel,
   generatePDF,
+  base64ToUint8Array,
 };
 export default utils;
