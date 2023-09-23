@@ -67,11 +67,12 @@ function GridView({
   const [whereFilter, setWhereFilter] = useState<any>({});
   const [trigger, setTrigger] = useState(false);
   const [popup, setPopup] = useState(null);
-  const [checkedItem, setCheckedItem] = useState([]);
   const [isSelectAll, setSelectAll] = useState(false);
 
   useEffect(() => {
     setWhereFilter({});
+    setSelectAll(false);
+    resetSelectedItems();
   }, [gridName]);
 
   function getFileName(str: string) {
@@ -648,7 +649,9 @@ function GridView({
                   }}
                 />
                 <Button color="green" icon="download" content={t("Export MetaData")} labelPosition="left" onClick={() => exportData()} />
-                <Button color="green" icon="download" content={t("Export Label")} labelPosition="left" onClick={() => exportLabel()} />
+                {gridName.includes("order") && (
+                  <Button color="green" icon="download" content={t("Export Label")} labelPosition="left" onClick={() => exportLabel()} />
+                )}
               </div>
             </div>
           </Card.Header>
