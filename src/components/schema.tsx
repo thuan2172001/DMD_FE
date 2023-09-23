@@ -294,6 +294,9 @@ function Schema({ controls, showError, value, onChange, errorFields, totalGrid =
                           enumName={ctrl.enum}
                           multiple={ctrl.multiple}
                           onChange={(val) => {
+                            if (ctrl.disabled) {
+                              return;
+                            }
                             handleChange(ctrl.field, val);
                           }}
                         />

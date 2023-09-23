@@ -284,7 +284,21 @@ function FormView({ formName, params, onCreated, onChange, customView }: FormVie
                     Back
                   </Button>
                   {formInfo.buttons
-                    .filter((i) => i.pageMode === params.mode)
+                    .filter((i) => {
+                      if (i.pageMode !== params.mode) return false;
+                      if (i.require) {
+                        let isShow = true;
+                        Object.keys(i.require).map((fieldKey) => {
+                          let value = i.require[fieldKey];
+                          console.log({value, payload, fieldKey})
+                          if (value !== payload[fieldKey]) {
+                            isShow = false;
+                          }
+                        })
+                        if (!isShow) return false
+                      }
+                      return true
+                    })
                     .map((btn: IButton, index: number) => {
                       return renderButton(btn, index);
                     })}

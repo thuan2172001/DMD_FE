@@ -149,6 +149,7 @@ export interface GridColumn {
   url?: string;
 }
 export interface Button {
+  require?: any;
   label: string;
   pageMode?: string;
   classes?: string;
