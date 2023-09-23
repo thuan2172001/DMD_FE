@@ -181,7 +181,7 @@ textarea:focus {
 }
 
 .pdf-large {
-  /* width: 400px !important; */
+  width: 400px !important;
 }
 
 .pdf-large img:not(.not-force) {
