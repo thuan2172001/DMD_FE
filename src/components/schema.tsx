@@ -83,7 +83,9 @@ function Schema({ controls, showError, value, onChange, errorFields, totalGrid =
           })}
         </div>
       )}
-      <Form className={`grid-form grid-cols-${totalGrid}`}>
+      <Form className={`grid-form`} style={{
+        gridTemplateColumns: `repeat(${totalGrid}, minmax(0, 1fr))`
+      }}>
         {Array.from({ length: totalGrid }).map((_, idx) => {
           return (
             <div className="col-span-1">
@@ -135,9 +137,9 @@ function Schema({ controls, showError, value, onChange, errorFields, totalGrid =
                       <Form.Field required={ctrl.required}>
                         <label className={`${errorFields?.includes(ctrl.field) && "error-field-schema"}`}>{t(ctrl.label)}</label>
                         <div className={ctrl.className}>
-                          {value[ctrl.field]?.map((base64String: string) => {
+                          {typeof value?.[ctrl.field] === 'object' ? value?.[ctrl.field]?.map((base64String: string) => {
                             return <ImagePopup imageUrl={base64String} isShowPreview={true} />
-                          })}
+                          }) : <>No data</>}
                         </div>
                       </Form.Field>
                     );
