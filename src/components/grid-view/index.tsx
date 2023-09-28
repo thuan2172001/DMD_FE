@@ -508,13 +508,26 @@ function GridView({
     onItemSelected(item);
   }
 
-  async function exportData() {
-    let res = await api.post("/operation/get-download-data", {
-      gridName,
-      isDownloadAll: isSelectAll,
-      ids: selectedItems,
-    });
+  async function fetchData() {
+    let res: any;
+    if (isSelectAll && JSON.stringify(whereFilter) !== "{}") {
+      res = await api.post("/operation/get-download-data", {
+        gridName,
+        isDownloadAll: false,
+        ids: data.map((item) => item.id),
+      });
+    } else {
+      res = await api.post("/operation/get-download-data", {
+        gridName,
+        isDownloadAll: isSelectAll,
+        ids: selectedItems,
+      });
+    }
+    return res;
+  }
 
+  async function exportData() {
+    let res = await fetchData();
     if (!isSelectAll) {
       res = selectedItems
         .map((id) => {
@@ -529,11 +542,7 @@ function GridView({
   }
 
   async function exportLabel() {
-    let res = await api.post("/operation/get-download-data", {
-      gridName,
-      isDownloadAll: isSelectAll,
-      ids: selectedItems,
-    });
+    let res = await fetchData();
 
     if (!isSelectAll) {
       res = selectedItems

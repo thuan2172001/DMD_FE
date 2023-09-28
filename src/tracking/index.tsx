@@ -4,6 +4,7 @@ import api from "services/api";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import ui from "services/ui";
+import { AlertType } from "interfaces";
 export default function Tracking() {
   const { t } = useTranslation();
   const nav = useNavigate();
@@ -13,11 +14,11 @@ export default function Tracking() {
 
   function printImage() {
     // Get the image element
-    const imageElement = document.getElementById('myImage');
+    const imageElement = document.getElementById("myImage");
 
     // Create a new style element
-    const styleElement = document.createElement('style');
-    
+    const styleElement = document.createElement("style");
+
     // Add the necessary CSS rules to the style element
     const cssText = `
       @media print {
@@ -48,38 +49,45 @@ export default function Tracking() {
     // Remove the added style element after printing
     styleElement.remove();
 
-    nav('/scan-data')
+    nav("/scan-data");
   }
 
   useEffect(() => {
     const load = async () => {
-      let rs = await api.post('/order/get-by-tracking', {
-        tracking: id
-      })
-      setData(rs)
-    }
+      try {
+        let rs = await api.post("/order/get-by-tracking", {
+          tracking: id,
+        });
+        setData(rs);
+      } catch (err: any) {
+        ui.alert(t(err?.message), AlertType.Danger);
+        nav(-1);
+      }
+    };
     load();
-  }, [])
+  }, []);
 
   useMemo(() => {
     if (data?.pdf) {
-      let instance = document.getElementById('myImage');
+      let instance = document.getElementById("myImage");
       if (instance) {
         printImage();
       } else {
         setTimeout(() => {
-          setTrigger(!trigger)
-        }, 500)
+          setTrigger(!trigger);
+        }, 500);
       }
     }
-  }, [data, trigger])
+  }, [data, trigger]);
 
   return (
     <div className="w-screen h-screen bg-white flex items-center justify-center">
       <div>
-        {data?.pdf && <div>
-          <img id="myImage" src={data.pdf} className="object-contain h-screen" />
-        </div>}
+        {data?.pdf && (
+          <div>
+            <img id="myImage" src={data.pdf} className="object-contain h-screen" />
+          </div>
+        )}
       </div>
     </div>
   );

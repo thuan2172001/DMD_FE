@@ -1,3 +1,4 @@
 {
-  "permission_denied": "You don't have permission to perform this action."
+  "permission_denied": "You don't have permission to perform this action.",
+  "order_invalid_data": "Invalid data"
 }
