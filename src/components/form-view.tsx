@@ -85,6 +85,7 @@ function FormView({ formName, params, onCreated, onChange, customView }: FormVie
     setSubmitting(true);
 
     try {
+      console.log(payload)
       // @ts-ignore
       let dataRes: { page: number; pageKey: string; src: string; text: string }[] = await window.cropPdfCenterToImages((percentage) => {
         if (percentage == "100") {
@@ -92,15 +93,14 @@ function FormView({ formName, params, onCreated, onChange, customView }: FormVie
         }
       }, payload.pdf);
 
-      let pdf = dataRes.find((pdfDataText) => {
+      let pdf = dataRes?.find((pdfDataText) => {
         let arr = pdfDataText.text.split("\n");
         let key = (pdfDataText.pageKey ?? arr[arr.length - 3]).replaceAll(" ", "");
         return key === payload.tracking_id;
       });
 
       if (!pdf) {
-        alert("Label not found !");
-        return;
+        throw Error("New Label not found !");
       }
 
       let errors = getErrorValue(payload, pdf.text);
@@ -119,8 +119,8 @@ function FormView({ formName, params, onCreated, onChange, customView }: FormVie
 
       setPayload(rs)
       ui.alert("Success", AlertType.Success);
-    } catch (err) {
-      ui.alert("Failed", AlertType.Danger);
+    } catch (err: any) {
+      ui.alert(t(err.message), AlertType.Danger);
     } finally {
       setSubmitting(false)
     }
