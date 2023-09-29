@@ -92,13 +92,10 @@ function FormView({ formName, params, onCreated, onChange, customView }: FormVie
         }
       }, payload.pdf);
 
-      console.log(payload.pdf)
-      console.log({dataRes})
-
       let pdf = dataRes?.find((pdfDataText) => {
         let arr = pdfDataText.text.split("\n");
         let key = (pdfDataText.pageKey ?? arr[arr.length - 3]).replaceAll(" ", "");
-        console.log(key, payload.tracking_id)
+        console.log(key, payload.tracking_id);
         return key === payload.tracking_id;
       });
 
@@ -120,12 +117,13 @@ function FormView({ formName, params, onCreated, onChange, customView }: FormVie
         ...payloadBody,
       });
 
-      setPayload(rs)
+      setPayload(rs);
+      nav(`/form/edit-form/edit?id=${rs.id}`);
       ui.alert("Success", AlertType.Success);
     } catch (err: any) {
       ui.alert(t(err.message), AlertType.Danger);
     } finally {
-      setSubmitting(false)
+      setSubmitting(false);
     }
   }
 
@@ -293,14 +291,14 @@ function FormView({ formName, params, onCreated, onChange, customView }: FormVie
                         let isShow = true;
                         Object.keys(i.require).map((fieldKey) => {
                           let value = i.require[fieldKey];
-                          console.log({value, payload, fieldKey})
+                          console.log({ value, payload, fieldKey });
                           if (value !== payload[fieldKey]) {
                             isShow = false;
                           }
-                        })
-                        if (!isShow) return false
+                        });
+                        if (!isShow) return false;
                       }
-                      return true
+                      return true;
                     })
                     .map((btn: IButton, index: number) => {
                       return renderButton(btn, index);

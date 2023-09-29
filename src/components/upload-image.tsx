@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { Image } from "semantic-ui-react";
 import { api, ui, utils } from "services";
@@ -6,6 +6,14 @@ import { api, ui, utils } from "services";
 export default function UploadImage({ value, onChange, className = "" }: { value: string; onChange: Function; className?: string }) {
   const [loading, setLoading] = useState(false);
   const [type, setType] = useState("image");
+
+  useEffect(() => {
+    if (value.includes("data:application/pdf")) {
+      setType("pdf");
+    } else {
+      setType('image')
+    }
+  }, [value])
 
   const onDrop = (acceptedFiles: any[]) => {
     if (!acceptedFiles.length) return;
