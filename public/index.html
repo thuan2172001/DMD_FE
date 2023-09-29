@@ -93,12 +93,16 @@
       }
 
       async function processPdf(pdfDocument, pageNum, callback) {
-        let data = await processPage(pdfDocument, pageNum);
-        let text = await convertImageToText(data.src);
-        callback({
-          ...data,
-          text,
-        });
+        try {
+          let data = await processPage(pdfDocument, pageNum);
+          let text = await convertImageToText(data.src);
+          callback({
+            ...data,
+            text,
+          });
+        } catch (err) {
+          console.log({ err });
+        }
       }
 
       async function cropPdfCenterToImages(setPercentage, data) {
@@ -107,9 +111,10 @@
         return loadingTask.promise.then(
           async function (pdfDocument) {
             const numPages = pdfDocument.numPages;
+
             const rs = [];
             let MAX_PROCESS = 3;
-            for (let pageNum = 1; pageNum <= numPages / MAX_PROCESS; pageNum++) {
+            for (let pageNum = 1; pageNum <= Math.ceil(numPages / MAX_PROCESS); pageNum++) {
               let resolve = [];
               for (let i = 1; i <= MAX_PROCESS; i++) {
                 let pageNumProgress = MAX_PROCESS * (pageNum - 1) + i;
