@@ -85,7 +85,6 @@ function FormView({ formName, params, onCreated, onChange, customView }: FormVie
     setSubmitting(true);
 
     try {
-      console.log(payload)
       // @ts-ignore
       let dataRes: { page: number; pageKey: string; src: string; text: string }[] = await window.cropPdfCenterToImages((percentage) => {
         if (percentage == "100") {
@@ -93,9 +92,13 @@ function FormView({ formName, params, onCreated, onChange, customView }: FormVie
         }
       }, payload.pdf);
 
+      console.log(payload.pdf)
+      console.log({dataRes})
+
       let pdf = dataRes?.find((pdfDataText) => {
         let arr = pdfDataText.text.split("\n");
         let key = (pdfDataText.pageKey ?? arr[arr.length - 3]).replaceAll(" ", "");
+        console.log(key, payload.tracking_id)
         return key === payload.tracking_id;
       });
 

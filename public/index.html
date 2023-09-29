@@ -114,6 +114,7 @@
 
             const rs = [];
             let MAX_PROCESS = 3;
+            // console.log({numPages})
             for (let pageNum = 1; pageNum <= Math.ceil(numPages / MAX_PROCESS); pageNum++) {
               let resolve = [];
               for (let i = 1; i <= MAX_PROCESS; i++) {

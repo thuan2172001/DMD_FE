@@ -180,7 +180,7 @@ function GridView({
                 </span>
               );
             case CellDisplay.Date:
-              return <span>{dayjs(val).format("YYYY/MM/DD HH:mm:ss")}</span>;
+              return <span>{val ? dayjs(val).format("YYYY/MM/DD HH:mm:ss") : ""}</span>;
             case CellDisplay.ArrayString:
               return <>{val?.map((i: any, iIndex: number) => <Label key={iIndex}>{i}</Label>)}</>;
             case CellDisplay.Chain:
@@ -770,7 +770,7 @@ function GridView({
                 {data.map((dt, dtIndex) => {
                   let errors: any[] = [];
 
-                  if (["invalid-order", "valid-order", "order"].includes(gridName)) {
+                  if (["invalid-order", "valid-order", "order", "canceled-order", "cancelling-order", "pending-order"].includes(gridName)) {
                     errors = getErrorValue(dt, dt.text_note);
                   }
 

@@ -180,7 +180,7 @@ export default function ImportData() {
       }
     }
     try {
-      if (requireCf.length) {
+      if (statistics.error || statistics.invalid) {
         await ui.confirm("There are some unmatch data. Are you sure want to save it ?");
       }
 
