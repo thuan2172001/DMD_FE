@@ -233,6 +233,7 @@ export enum SchemaControl {
 
 
 export interface FormControl {
+  isTrim?: boolean;
   label: string;
   field: string;
   dataType: SchemaDataType;

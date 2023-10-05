@@ -75,6 +75,15 @@ function FormView({ formName, params, onCreated, onChange, customView }: FormVie
     loadData();
   }, [formInfo, mode, id]);
 
+  useEffect(() => {
+    if (formName === "edit-order") {
+      let errors = getErrorValue(payload, payload.text_note);
+      console.log(errors)
+      payload.status = errors.length === 0;
+      payload.errorValue = errors;
+    }
+  }, [payload])
+
   function validate(input: any) {
     const errors: { [key: string]: string } = {};
     //@ts-ignore
@@ -291,7 +300,6 @@ function FormView({ formName, params, onCreated, onChange, customView }: FormVie
                         let isShow = true;
                         Object.keys(i.require).map((fieldKey) => {
                           let value = i.require[fieldKey];
-                          console.log({ value, payload, fieldKey });
                           if (value !== payload[fieldKey]) {
                             isShow = false;
                           }

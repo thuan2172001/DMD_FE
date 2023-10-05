@@ -13,6 +13,9 @@ export function isInvalid(errorValue: string[], header: string) {
 }
 
 export const checkErrorString = (fullText: string, searchText: string) => {
+  if (!searchText) {
+    return false;
+  }
   return fullText.includes(utils.formatString(searchText)) || fullText.includes(utils.formatString(searchText, true));
 };
 
@@ -31,7 +34,7 @@ export function getErrorValue(rowData: any, text: string) {
   let textLowerStrim = utils.formatString(text, true);
 
   let checkName = checkErrorString(textLower, name);
-  let checkAddress = checkErrorString(textLower, address) || textLowerStrim.includes(utils.formatString(address, true));
+  let checkAddress = checkErrorString(textLower, address) || (address && textLowerStrim.includes(utils.formatString(address, true)));
   let checkCity = checkErrorString(textLower, city);
   let checkState = checkErrorString(textLower, state);
   let checkZip = checkErrorString(textLower, zip);
@@ -120,10 +123,10 @@ export default function ImportData() {
 
           let errorValue = getErrorValue(formatData, pdfData?.text);
           if (existedTrackingId.includes(tracking)) {
-            errorValue.push('Duplicate')
+            errorValue.push("Duplicate");
           }
           if (tracking) {
-            existedTrackingId.push(tracking)
+            existedTrackingId.push(tracking);
           }
           formatData = {
             ...formatData,
@@ -213,13 +216,13 @@ export default function ImportData() {
       ui.alert(t(error.message));
     } finally {
       setLoading(false);
-      setError('')
+      setError("");
     }
   }
 
   async function download() {
     let uninsertableData = tableCellData.filter((data) => data.errorValue.includes("PDF") || data.errorValue.includes("Tracking"));
-    utils.generateExcelWithImages(tableHeaderData, uninsertableData, 'error_data')
+    utils.generateExcelWithImages(tableHeaderData, uninsertableData, "error_data");
   }
 
   useMemo(() => {
@@ -473,7 +476,7 @@ export default function ImportData() {
                                     console.log(col.text);
                                   }}
                                 >
-                                  {errorValue.includes('Duplicate') ? 'Duplicate' : 'Invalid data'}
+                                  {errorValue.includes("Duplicate") ? "Duplicate" : "Invalid data"}
                                 </div>
                               )}
                             </Table.Cell>

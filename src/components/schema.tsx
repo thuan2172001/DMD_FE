@@ -323,13 +323,17 @@ function Schema({ controls, showError, value, onChange, errorFields, totalGrid =
                           maxLength={ctrl.maxLength ? ctrl.maxLength : null}
                           placeholder={ctrl.placeholder}
                           type="text"
-                          value={value[ctrl.field]}
+                          value={ctrl.isTrim ? value[ctrl.field].replaceAll(" ", "") : value[ctrl.field]}
                           defaultValue={value[ctrl.field]}
                           onChange={(evt: React.ChangeEvent<HTMLInputElement>) => {
                             if (ctrl.dataType === SchemaDataType.Number) {
                               handleChange(ctrl.field, Number(evt.target.value));
                             } else {
-                              handleChange(ctrl.field, evt.target.value);
+                              let changeValue = evt.target.value;
+                              if (ctrl.isTrim) {
+                                changeValue = changeValue.replaceAll(" ", "")
+                              }
+                              handleChange(ctrl.field, changeValue);
                             }
                           }}
                         />
