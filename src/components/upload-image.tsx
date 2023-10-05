@@ -8,7 +8,7 @@ export default function UploadImage({ value, onChange, className = "" }: { value
   const [type, setType] = useState("image");
 
   useEffect(() => {
-    if (value.includes("data:application/pdf")) {
+    if (value.includes("data:application/pdf") || typeof value === 'object') {
       setType("pdf");
     } else {
       setType('image')
