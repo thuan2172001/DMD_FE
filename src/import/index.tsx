@@ -14,6 +14,7 @@ export function isInvalid(errorValue: string[], header: string) {
 
 export const checkErrorString = (fullText: string, searchText: string) => {
   if (!searchText) {
+    console.log({searchText})
     return false;
   }
   return fullText.includes(utils.formatString(searchText)) || fullText.includes(utils.formatString(searchText, true));
@@ -102,6 +103,7 @@ export default function ImportData() {
         });
 
         let tableHeader = Object.keys(excelData[0]);
+        console.log({tableHeader})
         tableHeader.push(...["Page", "PDF", "Status"]);
 
         let tableCell = excelData.map((rowData) => {
@@ -473,6 +475,9 @@ export default function ImportData() {
                                 <div
                                   className="font-bold text-[#FF0000] cursor-pointer"
                                   onClick={() => {
+                                    if (col.errorValue) {
+                                      ui.alert(`Missing field: ${col.errorValue.join(' - ')}`)
+                                    }
                                     console.log(col.text);
                                   }}
                                 >
