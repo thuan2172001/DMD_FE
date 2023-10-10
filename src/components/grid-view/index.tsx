@@ -325,17 +325,29 @@ function GridView({
 
     if (where.tracking_id) {
       let listTrackingId = where.tracking_id.split("\n");
-      where = {
-        ...where,
-        $or: {
-          tracking_id: {
-            $in: listTrackingId,
+      if (gridName === "order") {
+        where = {
+          ...where,
+          $or: {
+            tracking_id: {
+              $in: listTrackingId,
+            },
+            new_tracking_id: {
+              $in: listTrackingId,
+            },
           },
-          new_tracking_id: {
-            $in: listTrackingId,
+        };
+      } else {
+        where = {
+          ...where,
+          $or: {
+            tracking_id: {
+              $in: listTrackingId,
+            },
           },
-        },
-      };
+        };
+      }
+
       delete where.tracking_id;
       delete where.cancel_status;
     }
