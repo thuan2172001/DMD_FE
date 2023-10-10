@@ -706,7 +706,7 @@ function GridView({
                       />
                     </div>
                   );
-                if (["customer_name", "zip", "city"].includes(column.field))
+                if (["customer_name"].includes(column.field))
                   return (
                     <div>
                       <div className="mb-1 ml-0.5">{column.label}</div>
