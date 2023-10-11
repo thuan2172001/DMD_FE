@@ -176,7 +176,7 @@ export default function ImportData() {
   }
 
   async function onSubmit() {
-    let requiredFields = ["title"];
+    let requiredFields = [""];
     for (var i = 0; i < requiredFields.length; i++) {
       let f = requiredFields[i];
       if (!data[f]) {
