@@ -177,13 +177,13 @@ export default function ImportData() {
 
   async function onSubmit() {
     // let requiredFields = [];
-    for (var i = 0; i < requiredFields.length; i++) {
+    // for (var i = 0; i < requiredFields.length; i++) {
       // let f = requiredFields[i];
       // if (!data[f]) {
       //   setError(t("Please fill all the field data"));
       //   return;
       // }
-    }
+    // }
     try {
       if (statistics.error || statistics.invalid) {
         await ui.confirm("There are some unmatch data. Are you sure want to save it ?");
