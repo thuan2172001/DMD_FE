@@ -520,53 +520,63 @@ function GridView({
     onItemSelected(item);
   }
 
-  async function fetchData() {
+  async function fetchData(isLabel: boolean) {
     let res: any;
     if (isSelectAll && JSON.stringify(whereFilter) !== "{}") {
       res = await api.post("/operation/get-download-data", {
         gridName,
         isDownloadAll: false,
         ids: data.map((item) => item.id),
+        isLabel
       });
     } else {
       res = await api.post("/operation/get-download-data", {
         gridName,
         isDownloadAll: isSelectAll,
         ids: selectedItems,
+        isLabel
       });
     }
     return res;
   }
 
   async function exportData() {
-    let res = await fetchData();
-    if (!isSelectAll) {
-      res = selectedItems
-        .map((id) => {
-          let item = res.find((i: any) => i.id === id);
-          return item;
-        })
-        .filter((i) => !!i);
-    }
+    try {
+      let res = await fetchData(false);
+      if (!isSelectAll) {
+        res = selectedItems
+          .map((id) => {
+            let item = res.find((i: any) => i.id === id);
+            return item;
+          })
+          .filter((i) => !!i);
+      }
 
-    let keys = columns?.map((i: any) => i.field)?.filter((i) => i !== "pdf");
-    await utils.generateExcelWithoutLabel(keys, res, "data");
+      let keys = columns?.map((i: any) => i.field)?.filter((i) => i !== "pdf");
+      await utils.generateExcelWithoutLabel(keys, res, "data");
+    } catch (err: any) {
+      ui.alert(err?.message ?? err);
+    }
   }
 
   async function exportLabel() {
-    let res = await fetchData();
+    try {
+      let res = await fetchData(true);
 
-    if (!isSelectAll) {
-      res = selectedItems
-        .map((id) => {
-          let item = res.find((i: any) => i.id === id);
-          return item;
-        })
-        .filter((i) => !!i);
+      if (!isSelectAll) {
+        res = selectedItems
+          .map((id) => {
+            let item = res.find((i: any) => i.id === id);
+            return item;
+          })
+          .filter((i) => !!i);
+      }
+
+      let labelImages = res.map((data: any) => data.pdf).filter((i: any) => !!i);
+      await utils.generatePDF(labelImages, "data");
+    } catch (err: any) {
+      ui.alert(err?.message ?? err);
     }
-
-    let labelImages = res.map((data: any) => data.pdf).filter((i: any) => !!i);
-    await utils.generatePDF(labelImages, "data");
   }
 
   return (

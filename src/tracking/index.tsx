@@ -11,6 +11,15 @@ export default function Tracking() {
   const [data, setData] = useState<any>({});
   const [trigger, setTrigger] = useState<any>(false);
   const { id } = useParams();
+  const [imageLoaded, setImageLoaded] = useState(false);
+
+  const handleImageLoad = () => {
+    setImageLoaded(true);
+  };
+
+  const handleImageError = () => {
+    setImageLoaded(false);
+  };
 
   function printImage() {
     // Get the image element
@@ -68,7 +77,7 @@ export default function Tracking() {
   }, []);
 
   useMemo(() => {
-    if (data?.pdf) {
+    if (data?.pdf && imageLoaded) {
       let instance = document.getElementById("myImage");
       if (instance) {
         printImage();
@@ -78,14 +87,14 @@ export default function Tracking() {
         }, 500);
       }
     }
-  }, [data, trigger]);
+  }, [data, trigger, imageLoaded]);
 
   return (
     <div className="w-screen h-screen bg-white flex items-center justify-center">
       <div>
         {data?.pdf && (
           <div>
-            <img id="myImage" src={data.pdf} className="object-contain h-screen" />
+            <img onLoad={handleImageLoad} id="myImage" src={data.pdf} className="object-contain h-screen" />
           </div>
         )}
       </div>

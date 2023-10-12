@@ -6,6 +6,7 @@ import { read, write, utils as xlsxUtils } from "xlsx";
 import Tesseract from "tesseract.js";
 import { getDocument, GlobalWorkerOptions } from "pdfjs-dist";
 import JsBarcode from "jsbarcode";
+import axios from "axios";
 
 GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.worker.js";
 
@@ -333,11 +334,47 @@ function base64ToUint8Array(base64: string) {
   return uint8Array;
 }
 
+function btob64(buff: any) {
+  let binary = "";
+  const bytes = new Array().slice.call(new Uint8Array(buff));
+
+  for (let i = 0; i < bytes.length; ++i) {
+    binary = binary + String.fromCharCode(bytes[i]);
+  }
+
+  return Buffer.from(binary.toString(), "binary").toString("base64");
+}
+
+function get_type(url: string): string {
+  const parts = url.split(".");
+  const last_one = parts[parts.length - 1];
+
+  if (last_one === "png" || last_one === "jpg" || last_one === "jpeg" || last_one === "gif" || last_one === "bmp") {
+    return last_one;
+  } else {
+    return "";
+  }
+}
+
+async function urltob64(url: string): Promise<string> {
+  const type = get_type(url);
+  if (type === "") throw new Error("Cannot get image from gcp");
+
+  const response = await axios.get(type, { responseType: "arraybuffer" });
+  const base64String = Buffer.from(response.data, "binary").toString("base64");
+  return `data:image/jpeg;base64,${base64String}`;
+}
+
 const generatePDF = async (imageBase64List: string[], fileName: string) => {
   const pdfDoc = await PDFDocument.create();
 
   for (const imageBase64 of imageBase64List) {
-    const imageBytes = base64ToUint8Array(imageBase64);
+    let base64 = imageBase64;
+    if (base64.includes("http")) {
+      base64 = await urltob64(base64);
+    }
+
+    let imageBytes = base64ToUint8Array(imageBase64);
     const image = await pdfDoc.embedPng(imageBytes);
     const page = pdfDoc.addPage([image.width, image.height]);
     page.drawImage(image, {
