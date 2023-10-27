@@ -49,10 +49,12 @@ function FormView({ formName, params, onCreated, onChange, customView }: FormVie
   }, [formName]);
 
   useEffect(() => {
-    let errors = getErrorValue(payload, payload.text_note);
-    payload.status = errors.length === 0;
-    payload.errorValue = errors;
-    setErrors(errors);
+    if (formName === "edit-order") {
+      let errors = getErrorValue(payload, payload.text_note);
+      payload.status = errors.length === 0;
+      payload.errorValue = errors;
+      setErrors(errors);
+    }
   }, [payload]);
 
   async function loadData() {
@@ -78,11 +80,10 @@ function FormView({ formName, params, onCreated, onChange, customView }: FormVie
   useEffect(() => {
     if (formName === "edit-order") {
       let errors = getErrorValue(payload, payload.text_note);
-      console.log(errors)
       payload.status = errors.length === 0;
       payload.errorValue = errors;
     }
-  }, [payload])
+  }, [payload]);
 
   function validate(input: any) {
     const errors: { [key: string]: string } = {};

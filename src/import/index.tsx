@@ -14,7 +14,6 @@ export function isInvalid(errorValue: string[], header: string) {
 
 export const checkErrorString = (fullText: string, searchText: string) => {
   if (!searchText) {
-    console.log({searchText})
     return false;
   }
   return fullText.includes(utils.formatString(searchText)) || fullText.includes(utils.formatString(searchText, true));

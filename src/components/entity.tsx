@@ -15,16 +15,7 @@ interface EntityProps {
   displayField?: string;
   value_field?: string;
 }
-function Entity({
-  value,
-  values,
-  onChange,
-  disabled,
-  gridName,
-  multiple,
-  displayField,
-  value_field,
-}: EntityProps): React.ReactElement {
+function Entity({ value, values, onChange, disabled, gridName, multiple, displayField, value_field }: EntityProps): React.ReactElement {
   const gridInfo: GridEntity = useMemo<GridEntity>(() => {
     let rs: GridEntity = dataServices.getGrid(gridName);
     return rs;
@@ -35,7 +26,7 @@ function Entity({
     async function loadItems(ids: number[]) {
       let postfn = api.post;
       let rs = [];
-      if(value_field) {
+      if (value_field) {
         rs = await postfn(gridInfo.api, { where: { [value_field]: ids } });
       } else {
         rs = await postfn(gridInfo.api, { where: { id: ids } });
@@ -63,7 +54,11 @@ function Entity({
         newItems
       );
     } else {
-      onChange(newItems[0]?.id || null, newItems[0]);
+      if (typeof newItems[0] === "number") {
+        onChange(newItems);
+      } else {
+        onChange(newItems[0]?.id || null, newItems[0]);
+      }
     }
   }
   function renderValue(): React.ReactElement {
@@ -73,9 +68,7 @@ function Entity({
           <p>
             {items.map((i, index) => (
               <span key={index} className="inline-block pt-2">
-                <span className="bg-gray-200 text-gray-800 p-1 rounded-sm text-sm">
-                  {i[displayField]}
-                </span>
+                <span className="bg-gray-200 text-gray-800 p-1 rounded-sm text-sm">{i[displayField]}</span>
                 <span
                   onClick={(evt: React.MouseEvent<HTMLElement>) => {
                     evt.stopPropagation();
@@ -94,9 +87,7 @@ function Entity({
       }
     } else {
       return (
-        <p className="pt-2">
-          {items[0] ? items[0][displayField] : t("Select")}
-        </p>
+        <p className="pt-2">{items[0]?.[displayField] ? items[0][displayField] : typeof items[0] === "number" ? items[0] : t("Select")}</p>
       );
     }
   }

@@ -42,7 +42,7 @@ function getFieldData(obj: any, field: string) {
 }
 function GridView({
   gridName,
-  canSelect,
+  canSelect = false,
   selectedItems,
   onItemSelected,
   disableButton,
@@ -72,7 +72,7 @@ function GridView({
   useEffect(() => {
     setWhereFilter({});
     setSelectAll(false);
-    resetSelectedItems();
+    resetSelectedItems && resetSelectedItems();
   }, [gridName]);
 
   function getFileName(str: string) {
@@ -527,14 +527,14 @@ function GridView({
         gridName,
         isDownloadAll: false,
         ids: data.map((item) => item.id),
-        isLabel
+        isLabel,
       });
     } else {
       res = await api.post("/operation/get-download-data", {
         gridName,
         isDownloadAll: isSelectAll,
         ids: selectedItems,
-        isLabel
+        isLabel,
       });
     }
     return res;
@@ -679,9 +679,18 @@ function GridView({
                     setCurrentPage(0);
                   }}
                 />
-                <Button color="green" icon="download" content={t("Export MetaData")} labelPosition="left" onClick={() => exportData()} />
                 {gridName.includes("order") && (
-                  <Button color="green" icon="download" content={t("Export Label")} labelPosition="left" onClick={() => exportLabel()} />
+                  <>
+                    <Button
+                      color="green"
+                      icon="download"
+                      content={t("Export MetaData")}
+                      labelPosition="left"
+                      onClick={() => exportData()}
+                    />
+
+                    <Button color="green" icon="download" content={t("Export Label")} labelPosition="left" onClick={() => exportLabel()} />
+                  </>
                 )}
               </div>
             </div>
@@ -747,7 +756,7 @@ function GridView({
                         checked={isSelectAll}
                         onChange={(e, value) => {
                           setSelectAll(value.checked);
-                          resetSelectedItems();
+                          resetSelectedItems && resetSelectedItems();
                         }}
                       />
                     </Table.HeaderCell>
