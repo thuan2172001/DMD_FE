@@ -55,7 +55,7 @@ function Entity({ value, values, onChange, disabled, gridName, multiple, display
       );
     } else {
       if (typeof newItems[0] === "number") {
-        onChange(newItems);
+        onChange(newItems[0]);
       } else {
         onChange(newItems[0]?.id || null, newItems[0]);
       }
