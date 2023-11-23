@@ -1,5 +1,6 @@
 import { Empty } from "components";
 import ImagePopup from "components/image";
+import PdfPreview from "components/pdf-preview";
 import _ from "lodash";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -102,7 +103,7 @@ export default function ImportData() {
         });
 
         let tableHeader = Object.keys(excelData[0]);
-        console.log({tableHeader})
+        console.log({ tableHeader });
         tableHeader.push(...["Page", "PDF", "Status"]);
 
         let tableCell = excelData.map((rowData) => {
@@ -111,15 +112,17 @@ export default function ImportData() {
             page: number;
             src: string;
             text: string;
+            pdf: string;
           } = _.cloneDeep(pdfFormat[tracking]);
 
           delete pdfFormat[tracking];
 
           let formatData: any = {
             ...rowData,
-            PDF: pdfData?.src,
+            PDF: pdfData?.pdf,
             Page: pdfData?.page,
             text: pdfData?.text,
+            File: pdfData?.pdf,
           };
 
           let errorValue = getErrorValue(formatData, pdfData?.text);
@@ -143,11 +146,12 @@ export default function ImportData() {
             page: number;
             src: string;
             text: string;
+            pdf: string;
           } = _.cloneDeep(pdfFormat[tracking]);
           delete pdfFormat[tracking];
 
           let formatData: any = {
-            PDF: pdfData?.src,
+            PDF: pdfData?.pdf,
             Page: pdfData?.page,
             text: pdfData?.text,
           };
@@ -177,11 +181,11 @@ export default function ImportData() {
   async function onSubmit() {
     // let requiredFields = [];
     // for (var i = 0; i < requiredFields.length; i++) {
-      // let f = requiredFields[i];
-      // if (!data[f]) {
-      //   setError(t("Please fill all the field data"));
-      //   return;
-      // }
+    // let f = requiredFields[i];
+    // if (!data[f]) {
+    //   setError(t("Please fill all the field data"));
+    //   return;
+    // }
     // }
     try {
       if (statistics.error || statistics.invalid) {
@@ -458,10 +462,20 @@ export default function ImportData() {
                   return (
                     <Table.Row key={`${col["Tracking"]}-${col["Page"]}-${dataidx}`}>
                       {tableHeaderData.map((header, idx) => {
+                        // if (header === "PDF") {
+                        //   return (
+                        //     <Table.Cell key={"data" + header + idx} className={`${isInvalid(errorValue, header) && "fa alert-field"}`}>
+                        //       {col[header] ? <ImagePopup imageUrl={col[header]} /> : <></>}
+                        //     </Table.Cell>
+                        //   );
+                        // }
                         if (header === "PDF") {
                           return (
-                            <Table.Cell key={"data" + header + idx} className={`${isInvalid(errorValue, header) && "fa alert-field"}`}>
-                              {col[header] ? <ImagePopup imageUrl={col[header]} /> : <></>}
+                            <Table.Cell
+                              key={"data" + header + idx}
+                              className={`cursor-pointer ${isInvalid(errorValue, header) && "fa alert-field"}`}
+                            >
+                              {col[header] && <PdfPreview pdfBase64={col[header]} />}
                             </Table.Cell>
                           );
                         }
@@ -475,7 +489,7 @@ export default function ImportData() {
                                   className="font-bold text-[#FF0000] cursor-pointer"
                                   onClick={() => {
                                     if (col.errorValue) {
-                                      ui.alert(`Missing field: ${col.errorValue.join(' - ')}`)
+                                      ui.alert(`Missing field: ${col.errorValue.join(" - ")}`);
                                     }
                                     console.log(col.text);
                                   }}
