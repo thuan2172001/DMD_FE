@@ -89,6 +89,45 @@ const getStringifyValue = (value: any) => {
   }
 };
 
+async function processPage(pdfBytes: any, pageNum: number) {
+  try {
+    const pdfDoc = await PDFDocument.load(pdfBytes);
+    const page = pdfDoc.getPage(pageNum);
+
+    const { width, height } = page.getSize();
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext("2d");
+
+    // @ts-ignore
+    const pageText = await page.getTextContent();
+    const key = pageText.items.find((i: any) => i.str.length === 32);
+
+    const renderContext = {
+      canvasContext: ctx,
+      // @ts-ignore
+      viewport: page.getViewport({ scale: 1.5 }), // Adjust scale as needed
+    };
+
+    // @ts-ignore
+    await page.render(renderContext).promise;
+
+    const image = new Image();
+    image.src = canvas.toDataURL();
+    image.width = width;
+    image.height = height;
+
+    const pdfBytesBase64 = await pdfDoc.saveAsBase64();
+    const base64DataUrl = `data:application/pdf;base64,${pdfBytesBase64}`;
+
+    return { page: pageNum, src: image.src, pageKey: key?.str, additionalPdfBase64: base64DataUrl };
+  } catch (err) {
+    console.log("process error");
+    throw err;
+  }
+}
+
 async function cropPdfCenterToImages(
   setPercentage: any,
   file: any
@@ -98,7 +137,7 @@ async function cropPdfCenterToImages(
     fileReader.onload = async function () {
       const data = new Uint8Array(this.result as ArrayBufferLike);
       // @ts-ignore
-      let dataRes = await window.cropPdfCenterToImages(setPercentage, data);
+      let dataRes = await window.cropPdfCenterToImages(PDFDocument, setPercentage, data);
       resolve(dataRes);
     };
 
@@ -398,6 +437,16 @@ const generatePDF = async (imageBase64List: string[], fileName: string) => {
   document.body.removeChild(a);
 };
 
+function downloadAsPDF(pdf: string) {
+  const downloadLink = document.createElement("a");
+  
+  downloadLink.href = pdf;
+  
+  downloadLink.download = "data.pdf";
+  
+  downloadLink.click();
+}
+
 const utils = {
   matchText,
   getUid,
@@ -414,5 +463,7 @@ const utils = {
   generateExcelWithoutLabel,
   generatePDF,
   base64ToUint8Array,
+  processPage,
+  downloadAsPDF
 };
 export default utils;

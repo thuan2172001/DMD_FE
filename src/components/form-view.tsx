@@ -5,12 +5,13 @@ import { useTranslation } from "react-i18next";
 import Loading from "./loading";
 import dataServices from "../services/data";
 import Schema from "./schema";
-import { api, ui } from "services";
+import { api, ui, utils } from "services";
 import { Button, Card, Icon } from "semantic-ui-react";
 import { getErrorValue } from "import";
 import _ from "lodash";
 import { CancelModal } from "modal/cancel-modal";
 import { useNavigate } from "react-router-dom";
+import { PDFDocument } from "pdf-lib";
 interface FormViewProps {
   formName: string;
   params: { mode: string; id?: any; embed?: any };
@@ -96,7 +97,7 @@ function FormView({ formName, params, onCreated, onChange, customView }: FormVie
 
     try {
       // @ts-ignore
-      let dataRes: { page: number; pageKey: string; src: string; text: string }[] = await window.cropPdfCenterToImages((percentage) => {
+      let dataRes: { page: number; pageKey: string; src: string; text: string, pdf: string }[] = await window.cropPdfCenterToImages(PDFDocument, (percentage) => {
         if (percentage == "100") {
           setSubmitting(false);
         }
@@ -117,7 +118,7 @@ function FormView({ formName, params, onCreated, onChange, customView }: FormVie
 
       let payloadBody = {
         ...payload,
-        pdf: pdf.src,
+        pdf: pdf.pdf,
         page: pdf.page,
         status: errors.length === 0,
         text_note: pdf.text,

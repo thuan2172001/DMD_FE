@@ -1,10 +1,11 @@
-import { Button, Card, Form, Header, Input, Message } from "semantic-ui-react";
-import { useTranslation } from "react-i18next";
-import api from "services/api";
-import { useEffect, useMemo, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import ui from "services/ui";
+import PdfPreview from "components/pdf-preview";
 import { AlertType } from "interfaces";
+import printJs from "print-js";
+import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { useNavigate, useParams } from "react-router-dom";
+import api from "services/api";
+import ui from "services/ui";
 export default function Tracking() {
   const { t } = useTranslation();
   const nav = useNavigate();
@@ -61,6 +62,12 @@ export default function Tracking() {
     nav("/scan-data");
   }
 
+  function printPdf(pdfBase64: string) {
+    console.log(pdfBase64)
+    printJs({ printable: pdfBase64.replace("data:application/pdf;base64,", ""), type: "pdf", base64: true });
+    // nav("/scan-data");
+  }
+
   useEffect(() => {
     const load = async () => {
       try {
@@ -77,7 +84,7 @@ export default function Tracking() {
   }, []);
 
   useMemo(() => {
-    if (data?.pdf && imageLoaded) {
+    if (data?.pdf && imageLoaded && !data?.pdf.includes("data:application/pdf")) {
       let instance = document.getElementById("myImage");
       if (instance) {
         printImage();
@@ -86,17 +93,24 @@ export default function Tracking() {
           setTrigger(!trigger);
         }, 500);
       }
+    } else if (data?.pdf && data?.pdf.includes("data:application/pdf")) {
+      printPdf(data.pdf);
     }
   }, [data, trigger, imageLoaded]);
 
   return (
     <div className="w-screen h-screen bg-white flex items-center justify-center">
       <div>
-        {data?.pdf && (
-          <div>
-            <img onLoad={handleImageLoad} id="myImage" src={data.pdf} className="object-contain h-screen" />
-          </div>
-        )}
+        {data?.pdf &&
+          (data.pdf.includes("data:application/pdf") ? (
+            <div>
+              <PdfPreview pdfBase64={data.pdf} autoShow={true} showPrint={true} />
+            </div>
+          ) : (
+            <div>
+              <img onLoad={handleImageLoad} id="myImage" src={data.pdf} className="object-contain h-screen" />
+            </div>
+          ))}
       </div>
     </div>
   );

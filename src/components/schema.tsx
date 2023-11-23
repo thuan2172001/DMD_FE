@@ -10,6 +10,7 @@ import MultiLanguage from "./multi-language";
 import Tree from "./tree";
 import UploadIdentity from "./upload-identity";
 import ImagePopup from "./image";
+import PdfPreview from "./pdf-preview";
 
 interface FormViewProps {
   controls: FormControl[];
@@ -142,6 +143,9 @@ function Schema({ controls, showError, value, onChange, errorFields, totalGrid =
                         <div className={ctrl.className}>
                           {typeof value?.[ctrl.field] === "object" ? (
                             value?.[ctrl.field]?.map((base64String: string) => {
+                              if (base64String.includes("data:application/pdf")) {
+                                return <PdfPreview pdfBase64={base64String} />;
+                              }
                               return <ImagePopup imageUrl={base64String} isShowPreview={true} />;
                             })
                           ) : (
@@ -204,19 +208,23 @@ function Schema({ controls, showError, value, onChange, errorFields, totalGrid =
                     return (
                       <Form.Field required={ctrl.required}>
                         <label className={`${errorFields?.includes(ctrl.field) && "error-field-schema"}`}>{t(ctrl.label)}</label>
-                        {value[ctrl.field] ? <DatePicker
-                          isClearable
-                          showTimeSelect
-                          selected={typeof value[ctrl.field] === "string" ? new Date(value[ctrl.field]) : value[ctrl.field]}
-                          onChange={(val: Date) => {
-                            if (!val) {
-                              handleChange(ctrl.field, null);
-                            } else {
-                              handleChange(ctrl.field, dayjs(val).toDate());
-                            }
-                          }}
-                          dateFormat="yyyy/MM/dd HH:mm"
-                        /> : <></>}
+                        {value[ctrl.field] ? (
+                          <DatePicker
+                            isClearable
+                            showTimeSelect
+                            selected={typeof value[ctrl.field] === "string" ? new Date(value[ctrl.field]) : value[ctrl.field]}
+                            onChange={(val: Date) => {
+                              if (!val) {
+                                handleChange(ctrl.field, null);
+                              } else {
+                                handleChange(ctrl.field, dayjs(val).toDate());
+                              }
+                            }}
+                            dateFormat="yyyy/MM/dd HH:mm"
+                          />
+                        ) : (
+                          <></>
+                        )}
                       </Form.Field>
                     );
                   case SchemaControl.UploadIdentity:
@@ -331,7 +339,7 @@ function Schema({ controls, showError, value, onChange, errorFields, totalGrid =
                             } else {
                               let changeValue = evt.target.value;
                               if (ctrl.isTrim) {
-                                changeValue = changeValue.replaceAll(" ", "")
+                                changeValue = changeValue.replaceAll(" ", "");
                               }
                               handleChange(ctrl.field, changeValue);
                             }

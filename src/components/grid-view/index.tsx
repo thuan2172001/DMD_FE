@@ -16,6 +16,7 @@ import { Link } from "react-router-dom";
 import Tree from "components/tree";
 import { getErrorValue, isInvalid } from "import";
 import _ from "lodash";
+import PdfPreview from "components/pdf-preview";
 interface GridProps {
   gridName: string;
   canSelect?: boolean;
@@ -132,6 +133,9 @@ function GridView({
               );
             case CellDisplay.Image:
               if (val) {
+                if (val.includes("data:application/pdf")) {
+                  return <PdfPreview pdfBase64={val} />;
+                }
                 return (
                   <div
                     className="cursor-pointer text-[#3c81c2] font-bold"

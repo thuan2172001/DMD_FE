@@ -44,7 +44,7 @@
       To create a production bundle, use `npm run build` or `yarn build`.
     -->
     <script>
-      function processPage(pdfDocument, pageNum) {
+      async function extractDataFromPDFPage(pdfDocument, pageNum) {
         return new Promise((resolve) => {
           pdfDocument.getPage(pageNum).then(async function (page) {
             const viewport = page.getViewport({ scale: 10 });
@@ -73,6 +73,26 @@
         });
       }
 
+      async function processPage(PDFDocument, pdfBytes, pageNum, pdfOriginFile) {
+        try {
+          const pdfDoc = await PDFDocument.load(pdfBytes);
+          const { src, pageKey } = await extractDataFromPDFPage(pdfOriginFile, pageNum + 1);
+          const page = pdfDoc.getPage(pageNum);
+
+          const newPdfDoc = await PDFDocument.create();
+          const [copiedPage] = await newPdfDoc.copyPages(pdfDoc, [pageNum]);
+
+          newPdfDoc.addPage(copiedPage);
+
+          const base64DataUrl = await newPdfDoc.saveAsBase64({ dataUri: true })
+
+          return { page: pageNum, src, pageKey, pdf: base64DataUrl };
+        } catch (err) {
+          console.error("Error processing page", err);
+          throw err;
+        }
+      }
+
       function convertImageToText(imageBase64) {
         return new Promise((resolve, reject) => {
           Tesseract.recognize(
@@ -92,9 +112,9 @@
         });
       }
 
-      async function processPdf(pdfDocument, pageNum, callback) {
+      async function processPdf(PDFDocument, pdfDocument, pdfOriginFile, pageNum, callback) {
         try {
-          let data = await processPage(pdfDocument, pageNum);
+          let data = await processPage(PDFDocument, pdfDocument, pageNum, pdfOriginFile);
           let text = await convertImageToText(data.src);
           callback({
             ...data,
@@ -105,35 +125,47 @@
         }
       }
 
-      async function cropPdfCenterToImages(setPercentage, data) {
-        const loadingTask = pdfjsLib.getDocument(data);
+      async function cropPdfCenterToImages(PDFDocument, setPercentage, data) {
+        try {
+          const pdfDoc = await PDFDocument.load(data);
+          const loadingTask = pdfjsLib.getDocument(data);
 
-        return loadingTask.promise.then(
-          async function (pdfDocument) {
-            const numPages = pdfDocument.numPages;
+          return loadingTask.promise.then(
+            async function (pdfOriginFile) {
+              const numPages = pdfDoc.getPageCount();
 
-            const rs = [];
-            let MAX_PROCESS = 2;
+              const rs = [];
+              const MAX_PROCESS = 2;
 
-            for (let pageNum = 1; pageNum <= Math.ceil(numPages / MAX_PROCESS); pageNum++) {
-              let resolve = [];
-              for (let i = 1; i <= MAX_PROCESS; i++) {
-                let pageNumProgress = MAX_PROCESS * (pageNum - 1) + i;
-                if (pageNumProgress > numPages) {
-                  continue;
+              for (let pageNum = 1; pageNum <= Math.ceil(numPages / MAX_PROCESS); pageNum++) {
+                const resolve = [];
+
+                for (let i = 0; i < MAX_PROCESS; i++) {
+                  const pageNumProgress = MAX_PROCESS * (pageNum - 1) + i;
+
+                  if (pageNumProgress >= numPages) {
+                    continue;
+                  }
+
+                  const pdfPage = pdfDoc.getPage(pageNumProgress);
+                  const pdfBytes = await pdfDoc.save();
+
+                  resolve.push(processPdf(PDFDocument, pdfBytes, pdfOriginFile, pageNumProgress, (callbackRs) => rs.push(callbackRs)));
                 }
-                resolve.push(processPdf(pdfDocument, pageNumProgress, (callbackRs) => rs.push(callbackRs)));
-              }
-              await Promise.all(resolve);
-              setPercentage(Math.min(((pageNum * MAX_PROCESS) / numPages) * 100), 100);
-            }
 
-            return rs;
-          },
-          function (reason) {
-            console.error("Error while loading PDF: " + reason);
-          }
-        );
+                await Promise.all(resolve);
+                setPercentage(((pageNum * MAX_PROCESS) / numPages) * 100, 100);
+              }
+
+              return rs;
+            },
+            function (reason) {
+              console.error("Error while loading PDF: " + reason);
+            }
+          );
+        } catch (error) {
+          console.error("Error while loading PDF: " + error);
+        }
       }
     </script>
   </body>
