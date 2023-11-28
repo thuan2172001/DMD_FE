@@ -41,8 +41,8 @@ const PdfPreview = ({ pdfBase64, autoShow, showPrint }: { pdfBase64: string; aut
             View
           </div>
 
-          <Modal open={showPopup} onClose={togglePopup} size="small" className="p-[0px] max-w-min">
-            <Modal.Content>
+          <Modal open={showPopup} onClose={togglePopup} size="small" className="p-[0px] max-w-custom-full">
+            <Modal.Content className="w-full">
               <Document file={pdfBase64} onLoadSuccess={onDocumentLoadSuccess}>
                 <Page pageNumber={pageNumber} />
               </Document>

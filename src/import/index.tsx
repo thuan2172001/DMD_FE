@@ -103,7 +103,6 @@ export default function ImportData() {
         });
 
         let tableHeader = Object.keys(excelData[0]);
-        console.log({ tableHeader });
         tableHeader.push(...["Page", "PDF", "Status"]);
 
         let tableCell = excelData.map((rowData) => {

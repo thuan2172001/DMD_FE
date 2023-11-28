@@ -52,8 +52,13 @@
             canvas.width = viewport.width;
             canvas.height = viewport.height;
             const ctx = canvas.getContext("2d");
-            let pageText = await page.getTextContent();
-            let key = pageText.items.find((i) => i.str.length === 32);
+            const pageText = await page.getTextContent();
+            const key = pageText.items.find((i) => i.str.length === 32 || i.str.includes("TRACKING #"));
+            let keyStr = key?.str;
+
+            if (keyStr) {
+              keyStr = keyStr?.replaceAll(" ", "").replaceAll("TRACKING#:", "");
+            }
 
             const renderContext = {
               canvasContext: ctx,
@@ -67,7 +72,7 @@
               image.src = canvas.toDataURL();
               image.width = canvas.width;
               image.height = totalHeight;
-              resolve({ page: pageNum, src: image.src, pageKey: key?.str });
+              resolve({ page: pageNum, src: image.src, pageKey: keyStr });
             });
           });
         });
@@ -84,7 +89,7 @@
 
           newPdfDoc.addPage(copiedPage);
 
-          const base64DataUrl = await newPdfDoc.saveAsBase64({ dataUri: true })
+          const base64DataUrl = await newPdfDoc.saveAsBase64({ dataUri: true });
 
           return { page: pageNum, src, pageKey, pdf: base64DataUrl };
         } catch (err) {
@@ -116,6 +121,7 @@
         try {
           let data = await processPage(PDFDocument, pdfDocument, pageNum, pdfOriginFile);
           let text = await convertImageToText(data.src);
+          console.log({text})
           callback({
             ...data,
             text,
