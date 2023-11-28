@@ -404,24 +404,21 @@ async function urltob64(url: string): Promise<string> {
   return `data:image/jpeg;base64,${base64String}`;
 }
 
-const generatePDF = async (imageBase64List: string[], fileName: string) => {
+const generatePDF = async (pdfBase64List: string[], fileName: string) => {
   const pdfDoc = await PDFDocument.create();
 
-  for (const imageBase64 of imageBase64List) {
-    let base64 = imageBase64;
+  for (const pdfBase64 of pdfBase64List) {
+    let base64 = pdfBase64;
     if (base64.includes("http")) {
       base64 = await urltob64(base64);
     }
 
-    let imageBytes = base64ToUint8Array(imageBase64);
-    const image = await pdfDoc.embedPng(imageBytes);
-    const page = pdfDoc.addPage([image.width, image.height]);
-    page.drawImage(image, {
-      x: 0,
-      y: 0,
-      width: image.width,
-      height: image.height,
-    });
+    let pdfBytes = base64ToUint8Array(base64);
+    const srcPdf = await PDFDocument.load(pdfBytes);
+    const pages = await pdfDoc.copyPages(srcPdf, srcPdf.getPageIndices());
+    for (const page of pages) {
+      pdfDoc.addPage(page);
+    }
   }
 
   const pdfBytes = await pdfDoc.save();
