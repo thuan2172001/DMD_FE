@@ -7,6 +7,7 @@ import Chart from "chart";
 import Table from "table";
 import ImportData from "import";
 import ScanData from "scan";
+import Import17TrackData from "import/import-17track";
 
 export default function Main({ showMenu }: { showMenu: boolean }) {
   return (
@@ -14,6 +15,7 @@ export default function Main({ showMenu }: { showMenu: boolean }) {
       <div className={`p-5 pt-20 duration-200 ${showMenu && "pl-[265px]"}`}>
         <Routes>
           <Route path="/" element={<ImportData />}></Route>
+          <Route path="/import-17track" element={<Import17TrackData />}></Route>
           <Route path="/profile" element={<Profile />}></Route>
           <Route path="/scan-data" element={<ScanData />}></Route>
           <Route path="/dashboard" element={<Home />}></Route>

@@ -95,10 +95,15 @@ async function insertOrder({ title, data }: { title: string; data: any }) {
   return post("/operation/insert-order", { title, data });
 }
 
+async function insert17TrackOrder({ title, data }: { title: string; data: any }) {
+  return post("/operation/insert-17track-order", { title, data });
+}
+
 const api = {
   downloadReport,
   post,
   postFormData,
   insertOrder,
+  insert17TrackOrder,
 };
 export default api;

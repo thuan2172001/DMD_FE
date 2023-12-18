@@ -124,7 +124,8 @@ export enum CellDisplay {
   BidItem = "biditem",
   Ticket = "ticket",
   Chain = "chain",
-  CheckBox = "checkbox"
+  CheckBox = "checkbox",
+  DataTracking = "data_tracking",
 }
 export interface SearchItem {
   label: string;

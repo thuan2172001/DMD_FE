@@ -17,6 +17,7 @@ import Tree from "components/tree";
 import { getErrorValue, isInvalid } from "import";
 import _ from "lodash";
 import PdfPreview from "components/pdf-preview";
+import DataTrackingViewer from "components/data-tracking-preview";
 interface GridProps {
   gridName: string;
   canSelect?: boolean;
@@ -190,6 +191,8 @@ function GridView({
             case CellDisplay.Chain:
               let chain = gridInfo.tokens?.find((el: any) => el?.chainId == val);
               return chain?.name;
+            case CellDisplay.DataTracking:
+              return <DataTrackingViewer val={val} row={row}/>
           }
         },
       };
