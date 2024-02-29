@@ -14,7 +14,7 @@ import { Button, Card, Checkbox, Dropdown, Image, Input, Label, Modal, Paginatio
 import FilterForm from "./filter-form";
 import { Link } from "react-router-dom";
 import Tree from "components/tree";
-import { getErrorValue, isInvalid } from "import";
+import { getErrorValue, isInvalid } from "pages/import";
 import _ from "lodash";
 import PdfPreview from "components/pdf-preview";
 interface GridProps {

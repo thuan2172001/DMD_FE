@@ -1,13 +1,12 @@
-import "./bootstrap-iso.css";
-import "react-dropdown-tree-select/dist/styles.css";
-import "App.css";
-import { HashRouter as Router, Routes, Route } from "react-router-dom";
-import Layout from "layout";
-import Login from "login";
-import ModalManager from "modal";
-import Register from "register";
-import Tracking from "tracking";
-import ScanData from "scan";
+import 'App.css';
+import Layout from 'layout';
+import Login from 'pages/login';
+import Register from 'pages/register';
+import Tracking from 'pages/tracking';
+import 'react-dropdown-tree-select/dist/styles.css';
+import { Route, HashRouter as Router, Routes } from 'react-router-dom';
+import './bootstrap-iso.css';
+import ModalManager from 'components/modal';
 
 function App() {
   return (

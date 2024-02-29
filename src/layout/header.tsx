@@ -22,15 +22,6 @@ export default function Header({ toggleMenu }: { toggleMenu: Function }) {
           <Image src="logo2.png" className="block mx-auto h-8 scale-[1.5]" />
         </Menu.Item>
       </Link>
-
-      {/* <Menu.Item
-        className="menu-blue-bold"
-        onClick={() => {
-          toggleMenu();
-        }}
-      >
-        <i className="icon bars" />
-      </Menu.Item> */}
       <Menu.Menu position="right">
         <Menu.Item>
           <Language />

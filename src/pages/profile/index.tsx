@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useDropzone } from "react-dropzone";
 import { Schema } from "components";
-import dataServices from "../services/data";
+import dataServices from "../../services/data";
 import { UserRole } from "interfaces";
 import { Loading } from "components";
 import api from "services/api";

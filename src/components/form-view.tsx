@@ -1,17 +1,16 @@
-import React, { useState, useEffect, useRef } from "react";
-import { AlertType, Button as IButton, FormEntity } from "interfaces";
-import qs from "querystring";
-import { useTranslation } from "react-i18next";
-import Loading from "./loading";
-import dataServices from "../services/data";
-import Schema from "./schema";
-import { api, ui, utils } from "services";
-import { Button, Card, Icon } from "semantic-ui-react";
-import { getErrorValue } from "import";
-import _ from "lodash";
-import { CancelModal } from "modal/cancel-modal";
-import { useNavigate } from "react-router-dom";
-import { PDFDocument } from "pdf-lib";
+import { AlertType, FormEntity, Button as IButton } from 'interfaces';
+import { getErrorValue } from 'pages/import';
+import { PDFDocument } from 'pdf-lib';
+import qs from 'querystring';
+import React, { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
+import { Button, Card, Icon } from 'semantic-ui-react';
+import { api, ui } from 'services';
+import dataServices from '../services/data';
+import Loading from './loading';
+import Schema from './schema';
+import { CancelModal } from './modal/cancel-modal';
 interface FormViewProps {
   formName: string;
   params: { mode: string; id?: any; embed?: any };
@@ -20,13 +19,21 @@ interface FormViewProps {
   onChange?: Function;
   customView?: any;
 }
-function FormView({ formName, params, onCreated, onChange, customView }: FormViewProps): React.ReactElement {
+function FormView({
+  formName,
+  params,
+  onCreated,
+  onChange,
+  customView,
+}: FormViewProps): React.ReactElement {
   const { t } = useTranslation();
   const mainSchemaRef = useRef();
-  const [submited, setSubmited] = useState<boolean>(false);
+  const [submitted, setSubmitted] = useState<boolean>(false);
   const [payload, setPayload] = useState<any>(params.embed || {});
   const [submitting, setSubmitting] = useState<boolean>(false);
-  const [formInfo, setFormInfo] = useState<FormEntity>(dataServices.getFormByName(formName));
+  const [formInfo, setFormInfo] = useState<FormEntity>(
+    dataServices.getFormByName(formName)
+  );
   const [loading, setLoading] = useState<boolean>(true);
   const [errors, setErrors] = useState([]);
   let { mode, id } = params;
@@ -34,23 +41,7 @@ function FormView({ formName, params, onCreated, onChange, customView }: FormVie
   const nav = useNavigate();
 
   useEffect(() => {
-    // if (formName === "edit-order") {
-    //   let deepClone = _.cloneDeep(formInfo);
-    //   deepClone.buttons.push({
-    //     icon: "cancel",
-    //     color: "red",
-    //     label: "Cancel",
-    //     action: "popup",
-    //     position: "row",
-    //     pageMode: "edit",
-    //     popupName: "cancel-order",
-    //   });
-    //   setFormInfo(deepClone);
-    // }
-  }, [formName]);
-
-  useEffect(() => {
-    if (formName === "edit-order") {
+    if (formName === 'edit-order') {
       let errors = getErrorValue(payload, payload.text_note);
       payload.status = errors.length === 0;
       payload.errorValue = errors;
@@ -70,7 +61,7 @@ function FormView({ formName, params, onCreated, onChange, customView }: FormVie
     setLoading(false);
   }
   useEffect(() => {
-    if (!(mode === "edit" && id)) {
+    if (!(mode === 'edit' && id)) {
       setPayload(params.embed || {});
       setLoading(false);
       return;
@@ -79,7 +70,7 @@ function FormView({ formName, params, onCreated, onChange, customView }: FormVie
   }, [formInfo, mode, id]);
 
   useEffect(() => {
-    if (formName === "edit-order") {
+    if (formName === 'edit-order') {
       let errors = getErrorValue(payload, payload.text_note);
       payload.status = errors.length === 0;
       payload.errorValue = errors;
@@ -96,22 +87,35 @@ function FormView({ formName, params, onCreated, onChange, customView }: FormVie
     setSubmitting(true);
 
     try {
-      // @ts-ignore
-      let dataRes: { page: number; pageKey: string; src: string; text: string, pdf: string }[] = await window.cropPdfCenterToImages(PDFDocument, (percentage) => {
-        if (percentage == "100") {
-          setSubmitting(false);
-        }
-      }, payload.pdf);
+      let dataRes: {
+        page: number;
+        pageKey: string;
+        src: string;
+        text: string;
+        pdf: string;
+        // @ts-ignore
+      }[] = await window.cropPdfCenterToImages(
+        PDFDocument,
+        (percentage: string) => {
+          if (percentage == '100') {
+            setSubmitting(false);
+          }
+        },
+        payload.pdf
+      );
 
       let pdf = dataRes?.find((pdfDataText) => {
-        let arr = pdfDataText.text.split("\n");
-        let key = (pdfDataText.pageKey ?? arr[arr.length - 3]).replaceAll(" ", "");
+        let arr = pdfDataText.text.split('\n');
+        let key = (pdfDataText.pageKey ?? arr[arr.length - 3]).replaceAll(
+          ' ',
+          ''
+        );
         console.log(key, payload.tracking_id);
         return key === payload.tracking_id;
       });
 
       if (!pdf) {
-        throw Error("New Label not found !");
+        throw Error('New Label not found !');
       }
 
       let errors = getErrorValue(payload, pdf.text);
@@ -124,13 +128,13 @@ function FormView({ formName, params, onCreated, onChange, customView }: FormVie
         text_note: pdf.text,
       };
 
-      let rs = await api.post("/order/request-replace", {
+      let rs = await api.post('/order/request-replace', {
         ...payloadBody,
       });
 
       setPayload(rs);
       nav(`/form/edit-form/edit?id=${rs.id}`);
-      ui.alert("Success", AlertType.Success);
+      ui.alert('Success', AlertType.Success);
     } catch (err: any) {
       ui.alert(t(err.message), AlertType.Danger);
     } finally {
@@ -139,19 +143,19 @@ function FormView({ formName, params, onCreated, onChange, customView }: FormVie
   }
 
   async function onButtonClick(btn: IButton) {
-    if (btn.api === "/order/request-replace") {
+    if (btn.api === '/order/request-replace') {
       await handleReplace(btn);
       return;
     }
 
-    setSubmited(true);
+    setSubmitted(true);
     if (!validate(payload)) {
       return;
     }
     if (btn.confirmText) {
       await ui.confirm(t(btn.confirmText));
     }
-    if (formName === "edit-order") {
+    if (formName === 'edit-order') {
       let errors = getErrorValue(payload, payload.text_note);
       payload.status = errors.length === 0;
       payload.errorValue = errors;
@@ -160,10 +164,10 @@ function FormView({ formName, params, onCreated, onChange, customView }: FormVie
       await ui.confirm(
         `There are some unmatch data (${payload.errorValue
           .filter((i: any, index: number) => index % 2 === 1)
-          .join(", ")}). Are you sure want to save it ?`
+          .join(', ')}). Are you sure want to save it ?`
       );
     }
-    let isReturnForm = ["edit-order"].includes(formName);
+    let isReturnForm = ['edit-order'].includes(formName);
 
     try {
       setSubmitting(true);
@@ -175,11 +179,11 @@ function FormView({ formName, params, onCreated, onChange, customView }: FormVie
       if (isReturnForm && rs.id) {
         setPayload(rs);
       }
-      ui.alert(t(btn.successMessage || "Success"));
+      ui.alert(t(btn.successMessage || 'Success'));
     } catch (error: any) {
-      ui.alert(t(btn.failMessage || error.message || "Fail"));
+      ui.alert(t(btn.failMessage || error.message || 'Fail'));
     } finally {
-      if (!btn.disableReload && params.mode === "edit") {
+      if (!btn.disableReload && params.mode === 'edit') {
         if (!isReturnForm) {
           loadData();
         }
@@ -189,7 +193,7 @@ function FormView({ formName, params, onCreated, onChange, customView }: FormVie
   }
   function renderButton(btn: IButton, index: number) {
     switch (btn.action) {
-      case "api":
+      case 'api':
         return (
           <Button
             loading={submitting}
@@ -205,11 +209,11 @@ function FormView({ formName, params, onCreated, onChange, customView }: FormVie
             content={t(btn.label)}
           />
         );
-      case "popup":
+      case 'popup':
         return (
           <Button
             //@ts-ignore
-            color={btn.color || "blue"}
+            color={btn.color || 'blue'}
             className="mr-1"
             icon={btn.icon}
             content={t(btn.label)}
@@ -224,14 +228,14 @@ function FormView({ formName, params, onCreated, onChange, customView }: FormVie
             }}
           />
         );
-      case "redirect":
+      case 'redirect':
         let url = btn.redirectUrl;
         //check data item
         if (btn.redirectUrlEmbed && Object.keys(btn.redirectUrlEmbed).length) {
           let params: any = {};
           for (var i in btn.redirectUrlEmbed) {
             let val = btn.redirectUrlEmbed[i];
-            if (typeof val === "string" && val[0] === "$") {
+            if (typeof val === 'string' && val[0] === '$') {
               let key = val.substr(1, val.length - 1);
               params[i] = payload[key];
             } else {
@@ -242,7 +246,7 @@ function FormView({ formName, params, onCreated, onChange, customView }: FormVie
           if (btn.redirectUrlEmbed.embed) {
             for (var i in btn.redirectUrlEmbed.embed) {
               let val = btn.redirectUrlEmbed.embed[i];
-              if (typeof val === "string" && val[0] === "$") {
+              if (typeof val === 'string' && val[0] === '$') {
                 let key = val.substr(1, val.length - 1);
                 embed[i] = payload[key];
               } else {
@@ -256,7 +260,7 @@ function FormView({ formName, params, onCreated, onChange, customView }: FormVie
         }
         if (payload) {
           for (var i in payload) {
-            url = url.replace(new RegExp(`{${i}}`, "g"), payload[i]);
+            url = url.replace(new RegExp(`{${i}}`, 'g'), payload[i]);
           }
         }
         return (
@@ -284,7 +288,7 @@ function FormView({ formName, params, onCreated, onChange, customView }: FormVie
           <Card.Content>
             <Card.Header>
               <div className="flex justify-between items-center">
-                <p style={{ margin: 0 }}>{t(formInfo.label || "Unknown")}</p>
+                <p style={{ margin: 0 }}>{t(formInfo.label || 'Unknown')}</p>
                 <div>
                   <Button
                     color="teal"
@@ -321,7 +325,7 @@ function FormView({ formName, params, onCreated, onChange, customView }: FormVie
             <Schema
               controls={formInfo.controls}
               ref={mainSchemaRef}
-              showError={submited}
+              showError={submitted}
               value={payload}
               onChange={(val: any) => {
                 if (onChange) {
@@ -336,7 +340,7 @@ function FormView({ formName, params, onCreated, onChange, customView }: FormVie
           {customView !== undefined && <Card.Content content={customView} />}
 
           <CancelModal
-            isOpen={popup?.popupName === "cancel-order"}
+            isOpen={popup?.popupName === 'cancel-order'}
             item={popup?.item}
             close={() => {
               setPopup(null);

@@ -1,15 +1,15 @@
-import { Loading } from "components";
-import { EnumEntity, FormEntity, GridEntity, FormControl, SchemaControl, SchemaDataType } from "interfaces";
-import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
-import { RootState } from "reducer/store";
-import { setUserInfo } from "reducer/user.slice";
-import { data } from "services";
-import api from "services/api";
-import Header from "./header";
-import Main from "./main";
-import Sidebar from "./sidebar";
+import { Loading } from 'components';
+import { EnumEntity, FormEntity, GridEntity } from 'interfaces';
+import { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import { RootState } from 'reducer/store';
+import { setUserInfo } from 'reducer/user.slice';
+import { data } from 'services';
+import api from 'services/api';
+import Header from './header';
+import Routers from './routers';
+import Sidebar from './sidebar';
 
 export default function Layout() {
   const [showMenu, setShowMenu] = useState(true);
@@ -19,10 +19,10 @@ export default function Layout() {
   useEffect(() => {
     async function loadUserInfo() {
       try {
-        if (!localStorage.getItem("token")) {
-          throw new Error("token_not_found");
+        if (!localStorage.getItem('token')) {
+          throw new Error('token_not_found');
         }
-        let rs = await api.post("/operation/get-meta", {});
+        let rs = await api.post('/operation/get-meta', {});
         let { userInfo } = rs;
 
         let grids: { [key: string]: GridEntity } = {};
@@ -43,7 +43,7 @@ export default function Layout() {
         dispatch(setUserInfo(userInfo));
       } catch (error) {
         localStorage.clear();
-        nav("/login");
+        nav('/login');
       }
     }
     loadUserInfo();
@@ -58,7 +58,7 @@ export default function Layout() {
             }}
           />
           <Sidebar showMenu={showMenu} />
-          <Main showMenu={showMenu} />
+          <Routers showMenu={showMenu} />
         </div>
       ) : (
         <div className="w-screen h-screen flex items-center justify-center">

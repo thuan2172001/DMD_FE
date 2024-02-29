@@ -1,17 +1,17 @@
-import { Routes, Route } from "react-router-dom";
-import Profile from "profile";
-import Home from "home";
-import List from "list";
-import Form from "form";
-import Chart from "chart";
-import Table from "table";
-import ImportData from "import";
-import ScanData from "scan";
+import { Routes, Route } from 'react-router-dom';
+import Profile from 'pages/profile';
+import Home from 'pages/home';
+import List from 'pages/list';
+import Form from 'pages/form';
+import Chart from 'pages/chart';
+import Table from 'pages/table';
+import ImportData from 'pages/import';
+import ScanData from 'pages/scan';
 
-export default function Main({ showMenu }: { showMenu: boolean }) {
+export default function Routers({ showMenu }: { showMenu: boolean }) {
   return (
     <div>
-      <div className={`p-5 pt-20 duration-200 ${showMenu && "pl-[265px]"}`}>
+      <div className={`p-5 pt-20 duration-200 ${showMenu && 'pl-[265px]'}`}>
         <Routes>
           <Route path="/" element={<ImportData />}></Route>
           <Route path="/profile" element={<Profile />}></Route>
